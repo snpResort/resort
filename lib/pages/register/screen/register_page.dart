@@ -2,31 +2,31 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:resort/screens/register/main.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:resort/pages/login/screen/login_page.dart';
 import 'package:resort/utils/constants.dart';
 import 'package:resort/widgets/logo.dart';
 import 'package:resort/widgets/rounded_button.dart';
 
-class ScreenLogin extends StatefulWidget {
-  const ScreenLogin({super.key});
+class ScreenRegister extends StatefulWidget {
+  const ScreenRegister({super.key});
 
-  static String id = '/ScreenLogin';
+  static String id = '/ScreenRegister';
 
   @override
-  State<ScreenLogin> createState() => ScreenLoginState();
+  State<ScreenRegister> createState() => Screen_RegisterState();
 }
 
-class ScreenLoginState extends State<ScreenLogin> {
-  bool _obscureText = true;
-  String _email = '';
-  String _password = '';
-  bool _isLoading = false;
-
+class Screen_RegisterState extends State<ScreenRegister> {
   @override
   Widget build(BuildContext context) {
+    bool _obscureText = true;
+    String _email = '';
+    String _password = '';
+    bool _isLoading = false;
     final Widget logo = Center(
       child: SizedBox(
-        width: MediaQuery.of(context).size.width / 1.5,
+        width: MediaQuery.of(context).size.width / 2,
         child: const LogoApp(),
       ),
     );
@@ -66,13 +66,36 @@ class ScreenLoginState extends State<ScreenLogin> {
               _password = value;
             },
           ),
+          const SizedBox(
+            height: 8,
+          ),
+          TextField(
+            obscureText: _obscureText,
+            decoration: InputDecoration(
+              labelText: 'Xác nhật mật khẩu',
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.lock),
+              suffixIcon: GestureDetector(
+                child: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility),
+                onTap: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              ),
+            ),
+            onChanged: (value) {
+              _password = value;
+            },
+          ),
         ],
       ),
     );
     // Login button
     final Widget loginButton = RoundedButton(
         color: Colors.orange,
-        title: 'Đăng nhập',
+        title: 'Đăng ký',
         onPressed: () async {
           // Hide keyboard on login button press
           FocusManager.instance.primaryFocus?.unfocus();
@@ -88,14 +111,14 @@ class ScreenLoginState extends State<ScreenLogin> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Không có tài khoản?'),
+            Text('Đã có một tài khoản'),
             const SizedBox(width: 4.0),
             InkWell(
               onTap: () {
-                Navigator.of(context).pushReplacementNamed(ScreenRegister.id);
+                Navigator.of(context).pushReplacementNamed(ScreenLogin.id);
               },
               child: Text(
-                'Đăng ký',
+                'Đăng nhập',
                 style: TextStyle(color: Colors.green),
               ),
             )
