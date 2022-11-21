@@ -2,7 +2,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:resort/pages/login/screen/login_page.dart';
+import 'package:provider/provider.dart';
+import 'package:resort/auth/repository/p_user.dart';
+import 'package:resort/auth/screen/login_page.dart';
 import 'package:resort/widgets/gradient_mask.dart';
 
 class HomePage extends StatefulWidget {
@@ -69,8 +71,9 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(width: 5),
               GestureDetector(
+                onTap: () {},
                 child: RadiantGradientMask(
-                  child: Icon(Icons.view_headline_rounded),
+                  child: Icon(CupertinoIcons.circle_grid_hex),
                   gradient: [
                     Colors.deepOrange,
                     Colors.orangeAccent.shade200,
@@ -82,21 +85,22 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
-                context,
-                screen: ScreenLogin(),
-                withNavBar: false,
-                settings: RouteSettings(name: ScreenLogin.id),
-              );
-            },
-            icon: Icon(
-              CupertinoIcons.person_crop_circle,
-              size: 30,
-              color: Colors.black,
-            ),
-          )
+          if (!Provider.of<PUser>(context, listen: true).isLogin)
+            IconButton(
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
+                  context,
+                  screen: ScreenLogin(),
+                  withNavBar: false,
+                  settings: RouteSettings(name: ScreenLogin.id),
+                );
+              },
+              icon: Icon(
+                CupertinoIcons.person_crop_circle,
+                size: 30,
+                color: Colors.black,
+              ),
+            )
         ],
       ),
       body: SingleChildScrollView(

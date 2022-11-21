@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:resort/pages/login/screen/login_page.dart';
+import 'package:resort/auth/screen/login_page.dart';
 import 'package:resort/utils/constants.dart';
 import 'package:resort/widgets/logo.dart';
 import 'package:resort/widgets/rounded_button.dart';

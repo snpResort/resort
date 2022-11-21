@@ -1,14 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:resort/pages/about_page/screen/about_page.dart';
-import 'package:resort/pages/explore_page/screen/explore_page.dart';
-import 'package:resort/pages/home_page/screen/home_page.dart';
-import 'package:resort/pages/login/screen/login_page.dart';
-import 'package:resort/pages/register/screen/register_page.dart';
-import 'package:resort/pages/user_page/screen/user_page.dart';
+import 'package:provider/provider.dart';
+import 'package:resort/about_page/screen/about_page.dart';
+import 'package:resort/auth/models/user.dart';
+import 'package:resort/auth/repository/db_user.dart';
+import 'package:resort/auth/repository/p_user.dart';
+import 'package:resort/auth/screen/login_page.dart';
+import 'package:resort/auth/screen/register_page.dart';
+import 'package:resort/explore_page/screen/explore_page.dart';
+import 'package:resort/home_page/screen/home_page.dart';
+import 'package:resort/user_page/screen/user_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+
+  // Todo: register adapter
+  Hive.registerAdapter(UserAdapter());
+
+  // Todo: open box Hive
+  await Hive.openBox<User>(DBUser.dirName);
+
   runApp(const MyApp());
 }
 
@@ -18,26 +33,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => PUser()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const App(),
+        routes: {
+          ScreenLogin.id: (context) => const ScreenLogin(),
+          ScreenRegister.id: (context) => const ScreenRegister(),
+        },
       ),
-      home: const App(),
-      routes: {
-        ScreenLogin.id: (context) => const ScreenLogin(),
-        ScreenRegister.id: (context) => const ScreenRegister(),
-      },
     );
   }
 }
@@ -60,7 +71,7 @@ class _AppState extends State<App> {
       const ExplorePage(),
       const AboutPage(),
     ];
-    if (_isLogin) {
+    if (Provider.of<PUser>(context, listen: true).isLogin) {
       tabPage.add(const UserPage());
     }
     return tabPage;
@@ -97,7 +108,7 @@ class _AppState extends State<App> {
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
     ];
-    if (_isLogin) {
+    if (Provider.of<PUser>(context, listen: true).isLogin) {
       listButton.add(
         PersistentBottomNavBarItem(
           icon: Icon(CupertinoIcons.person),

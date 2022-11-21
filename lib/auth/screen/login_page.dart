@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:resort/pages/register/screen/register_page.dart';
+import 'package:provider/provider.dart';
+import 'package:resort/auth/models/user.dart';
+import 'package:resort/auth/repository/p_user.dart';
+import 'package:resort/auth/screen/register_page.dart';
 import 'package:resort/utils/constants.dart';
 import 'package:resort/widgets/logo.dart';
 import 'package:resort/widgets/rounded_button.dart';
@@ -19,9 +19,11 @@ class ScreenLogin extends StatefulWidget {
 
 class ScreenLoginState extends State<ScreenLogin> {
   bool _obscureText = true;
-  String _email = '';
-  String _password = '';
   bool _isLoading = false;
+  final _email = TextEditingController();
+  final _pw = TextEditingController();
+  final _focusEmail = FocusNode();
+  final _focusPw = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -38,17 +40,18 @@ class ScreenLoginState extends State<ScreenLogin> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           TextField(
+            controller: _email,
+            focusNode: _focusEmail,
             keyboardType: TextInputType.emailAddress,
             decoration: kEmailTextFieldDecoration(),
-            onChanged: (value) {
-              _email = value;
-            },
           ),
           const SizedBox(
             height: 8,
           ),
           TextField(
             obscureText: _obscureText,
+            controller: _pw,
+            focusNode: _focusPw,
             decoration: InputDecoration(
               labelText: 'Mật khẩu',
               border: const OutlineInputBorder(),
@@ -63,9 +66,6 @@ class ScreenLoginState extends State<ScreenLogin> {
                 },
               ),
             ),
-            onChanged: (value) {
-              _password = value;
-            },
           ),
         ],
       ),
@@ -77,9 +77,21 @@ class ScreenLoginState extends State<ScreenLogin> {
         onPressed: () async {
           // Hide keyboard on login button press
           FocusManager.instance.primaryFocus?.unfocus();
+          if (_email.text.isEmpty) {
+            showSnackbar(context, 'Vui lòng nhập email', time: 2);
+            _focusEmail.requestFocus();
+          } else if (_pw.text.isEmpty) {
+            showSnackbar(context, 'Vui lòng nhập mật khẩu', time: 2);
+            _focusPw.requestFocus();
+          }
+
+          // Todo: login thành công
+          User user = User(username: _email.text, password: _pw.text);
+          Provider.of<PUser>(context, listen: false).login(user);
           setState(() {
             _isLoading = true;
           });
+          Navigator.of(context).pop();
         });
 
     // Register alternative option
