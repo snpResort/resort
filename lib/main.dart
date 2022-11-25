@@ -9,6 +9,7 @@ import 'package:resort/auth/repository/db_user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/auth/screen/login_page.dart';
 import 'package:resort/auth/screen/register_page.dart';
+import 'package:resort/cart_page/screen/cart_page.dart';
 import 'package:resort/explore_page/screen/explore_page.dart';
 import 'package:resort/home_page/screen/home_page.dart';
 import 'package:resort/user_page/screen/user_page.dart';
@@ -69,6 +70,7 @@ class _AppState extends State<App> {
     final tabPage = <Widget>[
       const HomePage(),
       const ExplorePage(),
+      const CartPage(),
       const AboutPage(),
     ];
     if (Provider.of<PUser>(context, listen: true).isLogin) {
@@ -82,7 +84,7 @@ class _AppState extends State<App> {
       PersistentBottomNavBarItem(
         icon: Icon(CupertinoIcons.home),
         inactiveIcon: Icon(CupertinoIcons.house_fill),
-        title: ("Home"),
+        title: ("Trang chủ"),
         activeColorPrimary: CupertinoColors.activeOrange,
         inactiveColorPrimary: CupertinoColors.systemGrey,
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
@@ -96,14 +98,21 @@ class _AppState extends State<App> {
       PersistentBottomNavBarItem(
         icon: Icon(CupertinoIcons.compass),
         inactiveIcon: Icon(CupertinoIcons.compass_fill),
-        title: ("Explore"),
+        title: ("Khám phá"),
+        activeColorPrimary: CupertinoColors.activeGreen,
+        inactiveColorPrimary: CupertinoColors.systemGrey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(CupertinoIcons.cart),
+        inactiveIcon: Icon(CupertinoIcons.cart_fill),
+        title: ("Giỏ hàng"),
         activeColorPrimary: CupertinoColors.activeGreen,
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
       PersistentBottomNavBarItem(
         icon: Icon(CupertinoIcons.info),
         inactiveIcon: Icon(CupertinoIcons.info_circle_fill),
-        title: ("About"),
+        title: ("Giới thiệu"),
         activeColorPrimary: CupertinoColors.activeBlue,
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
@@ -113,7 +122,7 @@ class _AppState extends State<App> {
         PersistentBottomNavBarItem(
           icon: Icon(CupertinoIcons.person),
           inactiveIcon: Icon(CupertinoIcons.person_fill),
-          title: ("User"),
+          title: ("Tài khoản"),
           activeColorPrimary: CupertinoColors.systemIndigo,
           inactiveColorPrimary: CupertinoColors.systemGrey,
         ),

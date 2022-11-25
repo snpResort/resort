@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 const kLogoApp = 'assets/images/logo.png';
+const kBanner = 'assets/images/banner.jpg';
+const kCartEmpty = 'assets/images/cart_empty.png';
 
 const kUrlServer = '192.168.111.97:17051';
 

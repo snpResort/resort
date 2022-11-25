@@ -18,11 +18,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final banners = [
-    'assets/images/banner1.jpg',
-    'assets/images/banner2.jpg',
-    'assets/images/banner3.jpg',
-    'assets/images/banner4.jpg',
-    'assets/images/banner5.jpg',
+    'https://snpresort.github.io/images/panel/panel1.jpg',
+    'https://snpresort.github.io/images/panel/panel2.jpg',
+    'https://snpresort.github.io/images/panel/panel3.jpg',
+    'https://snpresort.github.io/images/panel/panel4.jpg',
+    'https://snpresort.github.io/images/panel/panel5.jpg',
   ];
 
   @override
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         image: DecorationImage(
-                          image: AssetImage(i),
+                          image: NetworkImage(i),
                         ),
                       ),
                     );
