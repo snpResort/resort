@@ -5,12 +5,11 @@ class DBUser {
   static String dirName = 'myPlaylist';
   static Box<User> _getBox() => Hive.box<User>(dirName);
 
-  static void saveUser(User user) {
-    _getBox().put('user', user);
+  static User? getUser() {
+    return _getBox().get('user');
   }
 
-  static void refeshToken(User user) {
-    // Todo: refesh token
+  static void saveUser(User user) {
     _getBox().put('user', user);
   }
 
@@ -19,6 +18,4 @@ class DBUser {
   }
 
   static bool hasLogin() => _getBox().length != 0;
-
-  static String getAccessToken() => _getBox().get('user')!.accessToken ?? '';
 }

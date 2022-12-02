@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:resort/utils/constants.dart';
+import 'package:resort/constant/app_string.dart';
 
 class LogoApp extends StatelessWidget {
   const LogoApp({super.key});

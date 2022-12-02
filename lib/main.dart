@@ -4,11 +4,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/about_page/screen/about_page.dart';
+import 'package:resort/auth/models/member.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/db_user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/auth/screen/login_page.dart';
+import 'package:resort/auth/screen/register_info.dart';
 import 'package:resort/auth/screen/register_page.dart';
+import 'package:resort/auth/screen/verify_page.dart';
 import 'package:resort/cart_page/screen/cart_page.dart';
 import 'package:resort/explore_page/screen/explore_page.dart';
 import 'package:resort/home_page/screen/home_page.dart';
@@ -20,6 +23,7 @@ void main() async {
   await Hive.initFlutter();
 
   // Todo: register adapter
+  Hive.registerAdapter(MemberAdapter());
   Hive.registerAdapter(UserAdapter());
 
   // Todo: open box Hive
@@ -48,6 +52,8 @@ class MyApp extends StatelessWidget {
         routes: {
           ScreenLogin.id: (context) => const ScreenLogin(),
           ScreenRegister.id: (context) => const ScreenRegister(),
+          VerifyPage.id: (context) => const VerifyPage(),
+          RegisterInfo.id: (context) => const RegisterInfo(),
         },
       ),
     );
@@ -65,6 +71,17 @@ class _AppState extends State<App> {
   final _isLogin = false;
   PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    // check login
+    if (DBUser.hasLogin()) {
+      Provider.of<PUser>(context, listen: false).login(DBUser.getUser()!);
+    }
+  }
 
   List<Widget> _buildScreens() {
     final tabPage = <Widget>[
@@ -92,6 +109,8 @@ class _AppState extends State<App> {
           routes: {
             ScreenLogin.id: (context) => const ScreenLogin(),
             ScreenRegister.id: (context) => const ScreenLogin(),
+            VerifyPage.id: (context) => const VerifyPage(),
+            RegisterInfo.id: (context) => const RegisterInfo(),
           },
         ),
       ),

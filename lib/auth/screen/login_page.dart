@@ -1,12 +1,14 @@
-import 'package:flutter/cupertino.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/p_user.dart';
+import 'package:resort/auth/request/login_request.dart';
 import 'package:resort/auth/screen/register_page.dart';
-import 'package:resort/utils/constants.dart';
+import 'package:resort/constant/app_style.dart';
 import 'package:resort/widgets/logo.dart';
 import 'package:resort/widgets/rounded_button.dart';
+import 'package:resort/widgets/wrong_alert.dart';
 
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({super.key});
@@ -72,27 +74,55 @@ class ScreenLoginState extends State<ScreenLogin> {
     );
     // Login button
     final Widget loginButton = RoundedButton(
-        color: Colors.orange,
-        title: 'Đăng nhập',
-        onPressed: () async {
-          // Hide keyboard on login button press
-          FocusManager.instance.primaryFocus?.unfocus();
-          if (_email.text.isEmpty) {
-            showSnackbar(context, 'Vui lòng nhập email', time: 2);
-            _focusEmail.requestFocus();
-          } else if (_pw.text.isEmpty) {
-            showSnackbar(context, 'Vui lòng nhập mật khẩu', time: 2);
-            _focusPw.requestFocus();
-          }
+      color: Colors.orange,
+      title: 'Đăng nhập',
+      onPressed: () async {
+        // Hide keyboard on login button press
+        FocusManager.instance.primaryFocus?.unfocus();
+        if (_email.text.isEmpty) {
+          ackAlert(
+            context,
+            'Vui lòng nhập email',
+          );
+          _focusEmail.requestFocus();
+          return;
+        } else if (!EmailValidator.validate(_email.text)) {
+          ackAlert(
+            context,
+            'Email không hợp lệ',
+          );
+          _focusEmail.requestFocus();
+          return;
+        } else if (_pw.text.isEmpty) {
+          ackAlert(
+            context,
+            'Vui lòng nhập mật khẩu',
+          );
+          _focusPw.requestFocus();
+          return;
+        }
 
-          // Todo: login thành công
-          User user = User(username: _email.text, password: _pw.text);
-          Provider.of<PUser>(context, listen: false).login(user);
-          setState(() {
-            _isLoading = true;
-          });
-          Navigator.of(context).pop();
+        // Todo: check username & password (alert: thông tin đăng nhập không chính xác(err))
+        loginRequest(username: _email.text, password: _pw.text).then((user) {
+          if (user != null) {
+            Provider.of<PUser>(context, listen: false).login(user);
+            Navigator.of(context).pop();
+          } else {
+            setState(() {
+              _isLoading = false;
+            });
+            ackAlert(
+              context,
+              'Thông tin đăng nhập không chính xác.\nVui lòng kiểm tra lại',
+            );
+          }
         });
+
+        setState(() {
+          _isLoading = true;
+        });
+      },
+    );
 
     // Register alternative option
     final Widget bottomTextContent = Column(
@@ -118,16 +148,20 @@ class ScreenLoginState extends State<ScreenLogin> {
     );
 
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          logo,
-          textFieldContent,
-          loginButton,
-          bottomTextContent,
-        ],
-      ),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                logo,
+                textFieldContent,
+                loginButton,
+                bottomTextContent,
+              ],
+            ),
     );
   }
 }

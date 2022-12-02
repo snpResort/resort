@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
-import 'package:resort/utils/constants.dart';
+import 'package:resort/constant/app_string.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});

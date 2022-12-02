@@ -1,10 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/repository/p_user.dart';
-import 'package:resort/utils/constants.dart';
+import 'package:resort/constant/app_string.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -18,6 +19,9 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
+    final isLogin = Provider.of<PUser>(context).isLogin;
+    final _user = isLogin ? Provider.of<PUser>(context).user : null;
+
     final _width = MediaQuery.of(context).size.width;
 
     Widget _dividerControl = const Padding(
@@ -60,17 +64,44 @@ class _UserPageState extends State<UserPage> {
                             borderRadius: BorderRadius.circular(365),
                           ),
                         ),
-                        Container(
-                          height: _width / 4,
-                          width: _width / 4,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/282098508_1477564782675813_5220065825042207171_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=174925&_nc_ohc=djRn3G8HhXcAX9AR2HG&_nc_ht=scontent.fsgn19-1.fna&oh=00_AfAlFb-8aFRooQNjHCcIm1j2FW92HR70YbCq5Z3C23pCOw&oe=6383B749',
+                        CachedNetworkImage(
+                          imageUrl: _user!.avt,
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              height: _width / 4,
+                              width: _width / 4,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                ),
+                                borderRadius: BorderRadius.circular(365),
                               ),
-                            ),
-                            borderRadius: BorderRadius.circular(365),
-                          ),
+                            );
+                          },
+                          placeholder: (context, url) {
+                            return Container(
+                              height: _width / 4,
+                              width: _width / 4,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(365),
+                              ),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                          errorWidget: (context, url, error) {
+                            return Container(
+                              height: _width / 5,
+                              width: _width / 5,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(kAvtNull),
+                                ),
+                                borderRadius: BorderRadius.circular(365),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -93,7 +124,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Từ Huệ Sơn',
+                  _user.hoTen,
                   style: TextStyle(color: Colors.white, fontSize: _width / 12),
                 ),
                 Row(
@@ -109,7 +140,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      'Bạc',
+                      _user.member.loaiThanhVien,
                       style: TextStyle(
                         fontSize: _width / 16,
                         color: Colors.orange,
@@ -214,7 +245,7 @@ class _UserPageState extends State<UserPage> {
                     const SizedBox(height: 28),
                     Text(
                       // Todo: change name user
-                      'Từ Huệ Sơn',
+                      _user.hoTen,
                       style: TextStyle(
                         fontSize: _width / 14,
                         color: Colors.white,
@@ -222,7 +253,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                     Text(
                       // Todo: change code
-                      '123 456 789',
+                      _user.idTK,
                       style: TextStyle(
                         fontSize: _width / 13,
                         color: Colors.white,
@@ -233,56 +264,7 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
             const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.orange,
-                      ),
-                    ),
-                    child: ListTile(
-                      onTap: () {},
-                      contentPadding: EdgeInsets.zero,
-                      leading: Padding(
-                        padding: EdgeInsets.only(left: 15),
-                        child: Icon(
-                          Icons.spoke_outlined,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      title: Text(
-                        'Sử dụng điện thoại làm mã thành viên',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontSize: _width / 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.orange,
-                      ),
-                    ),
-                    child: Icon(
-                      CupertinoIcons.arrowshape_turn_up_right,
-                      color: Colors.orange,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+
             // Container(
             //   margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
             //   alignment: Alignment.centerLeft,
