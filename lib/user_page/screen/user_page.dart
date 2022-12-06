@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/constant/app_string.dart';
+import 'package:resort/user_page/screen/user_info_page.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -205,9 +207,12 @@ class _UserPageState extends State<UserPage> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color.fromARGB(255, 192, 192, 192),
-                    Color.fromARGB(255, 201, 201, 201),
-                    Color.fromARGB(255, 211, 211, 211),
+                    // Color.fromARGB(255, 192, 192, 192),
+                    // Color.fromARGB(255, 201, 201, 201),
+                    // Color.fromARGB(255, 211, 211, 211),
+                    Color.fromARGB(255, 199, 159, 48),
+                    Color.fromARGB(255, 185, 118, 29),
+                    Color.fromARGB(255, 129, 84, 0),
                   ],
                 ),
               ),
@@ -234,7 +239,7 @@ class _UserPageState extends State<UserPage> {
                         ),
                         const Spacer(),
                         Text(
-                          'SILVER',
+                          'COPPER',
                           style: TextStyle(
                             fontSize: _width / 18,
                             color: Colors.white,
@@ -286,7 +291,14 @@ class _UserPageState extends State<UserPage> {
           _buttonControl(
             title: 'Thông tin cá nhân',
             icon: CupertinoIcons.person_circle,
-            onClick: () {},
+            onClick: () {
+              PersistentNavBarNavigator.pushNewScreen(
+                context,
+                screen: const UserInfoPage(),
+                withNavBar: true, // OPTIONAL VALUE. True by default.
+                pageTransitionAnimation: PageTransitionAnimation.cupertino,
+              );
+            },
           ),
           _dividerControl,
           _buttonControl(
@@ -385,7 +397,9 @@ class _buttonControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => onClick,
+      onTap: () {
+        onClick();
+      },
       contentPadding: EdgeInsets.symmetric(horizontal: 23, vertical: 5),
       leading: Icon(icon),
       minLeadingWidth: 10,

@@ -48,49 +48,47 @@ class _CartPageState extends State<CartPage> {
             height: 10,
             thickness: 5,
           ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tổng cộng',
-                        style: TextStyle(
-                          fontSize: _width / 19,
-                        ),
-                      ),
-                      Text(
-                        '0₫',
-                        style: TextStyle(
-                          fontSize: _width / 19,
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.orange),
-                      padding: MaterialStateProperty.all(
-                        EdgeInsets.symmetric(
-                          horizontal: _width / 4,
-                          vertical: 13,
-                        ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tổng cộng',
+                      style: TextStyle(
+                        fontSize: _width / 19,
                       ),
                     ),
-                    child: Text(
-                      'Thanh toán',
-                      style:
-                          TextStyle(color: Colors.white, fontSize: _width / 18),
+                    Text(
+                      '0₫',
+                      style: TextStyle(
+                        fontSize: _width / 19,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: _cartIsEmpty ? null : () {},
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.orange),
+                    padding: MaterialStateProperty.all(
+                      EdgeInsets.symmetric(
+                        horizontal: _width / 4,
+                        vertical: 13,
+                      ),
                     ),
                   ),
-                ],
-              ),
+                  child: Text(
+                    'Thanh toán',
+                    style:
+                        TextStyle(color: Colors.white, fontSize: _width / 18),
+                  ),
+                ),
+                const SizedBox(height: 70),
+              ],
             ),
           )
         ],

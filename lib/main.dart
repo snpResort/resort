@@ -15,6 +15,7 @@ import 'package:resort/auth/screen/verify_page.dart';
 import 'package:resort/cart_page/screen/cart_page.dart';
 import 'package:resort/explore_page/screen/explore_page.dart';
 import 'package:resort/home_page/screen/home_page.dart';
+import 'package:resort/user_page/screen/user_info_page.dart';
 import 'package:resort/user_page/screen/user_page.dart';
 
 void main() async {
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
           ScreenRegister.id: (context) => const ScreenRegister(),
           VerifyPage.id: (context) => const VerifyPage(),
           RegisterInfo.id: (context) => const RegisterInfo(),
+          UserInfoPage.id: (context) => const UserInfoPage(),
         },
       ),
     );
@@ -72,18 +74,7 @@ class _AppState extends State<App> {
   PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    // check login
-    if (DBUser.hasLogin()) {
-      Provider.of<PUser>(context, listen: false).login(DBUser.getUser()!);
-    }
-  }
-
-  List<Widget> _buildScreens() {
+  List<Widget> _buildScreens(context) {
     final tabPage = <Widget>[
       const HomePage(),
       const ExplorePage(),
@@ -96,7 +87,7 @@ class _AppState extends State<App> {
     return tabPage;
   }
 
-  List<PersistentBottomNavBarItem> _navBarsItems() {
+  List<PersistentBottomNavBarItem> _navBarsItems(contex) {
     final listButton = <PersistentBottomNavBarItem>[
       PersistentBottomNavBarItem(
         icon: Icon(CupertinoIcons.home),
@@ -144,6 +135,12 @@ class _AppState extends State<App> {
           title: ("Tài khoản"),
           activeColorPrimary: CupertinoColors.systemIndigo,
           inactiveColorPrimary: CupertinoColors.systemGrey,
+          routeAndNavigatorSettings: RouteAndNavigatorSettings(
+            initialRoute: "/",
+            routes: {
+              UserInfoPage.id: (context) => const UserInfoPage(),
+            },
+          ),
         ),
       );
     }
@@ -151,12 +148,22 @@ class _AppState extends State<App> {
   }
 
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    // check login
+    if (DBUser.hasLogin()) {
+      Provider.of<PUser>(context, listen: false).login(DBUser.getUser()!);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return PersistentTabView(
       context,
       controller: _controller,
-      screens: _buildScreens(),
-      items: _navBarsItems(),
+      screens: _buildScreens(context),
+      items: _navBarsItems(context),
       resizeToAvoidBottomInset: true,
       navBarHeight: MediaQuery.of(context).viewInsets.bottom > 0
           ? 0.0

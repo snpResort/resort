@@ -1,10 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:resort/widgets/gradient_mask.dart';
 
 class customLP extends StatelessWidget {
-  const customLP(
+  customLP(
       {Key? key,
       required double width,
       required this.title,
@@ -23,6 +24,8 @@ class customLP extends StatelessWidget {
   final int amoutCmt;
   final String rateStar;
   final bool isHorizontal;
+
+  final oCcy = new NumberFormat("#,##0");
 
   @override
   Widget build(BuildContext context) {
@@ -56,19 +59,23 @@ class customLP extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: _width / 15,
-                      color: Colors.white,
+                  Container(
+                    width: _width / 1.95,
+                    child: Text(
+                      '$title',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: _width / 20,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   Row(
                     children: [
                       Text(
-                        '${price} ₫',
+                        '${oCcy.format(double.parse(price))} ₫',
                         style: TextStyle(
-                          fontSize: _width / 24,
+                          fontSize: _width / 25,
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
@@ -76,7 +83,7 @@ class customLP extends StatelessWidget {
                       Text(
                         '/đêm',
                         style: TextStyle(
-                          fontSize: _width / 24,
+                          fontSize: _width / 25,
                           color: Colors.white,
                           fontWeight: FontWeight.w400,
                         ),
@@ -143,7 +150,7 @@ class customLP extends StatelessWidget {
 }
 
 class customLP_rate extends StatelessWidget {
-  const customLP_rate(
+  customLP_rate(
       {Key? key,
       required double width,
       required this.title,
@@ -154,6 +161,8 @@ class customLP_rate extends StatelessWidget {
       required this.isHorizontal})
       : _width = width,
         super(key: key);
+
+  final oCcy = new NumberFormat("#,##0");
 
   final double _width;
   final String title;
@@ -184,7 +193,7 @@ class customLP_rate extends StatelessWidget {
         ),
         Container(
           width: _height * _scale16_9,
-          height: isHorizontal ? _height / 3.3 : null,
+          height: isHorizontal ? _height / 2.7 : null,
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.black38,
@@ -198,17 +207,21 @@ class customLP_rate extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: _height * _scale16_9 / 15,
-                      color: Colors.white,
+                  Container(
+                    width: _width / 2.8,
+                    child: Text(
+                      '$title',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: _width / 25,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   Row(
                     children: [
                       Text(
-                        '${price} ₫',
+                        '${oCcy.format(double.parse(price))} ₫',
                         style: TextStyle(
                           fontSize: _height * _scale16_9 / 24,
                           color: Colors.white,
