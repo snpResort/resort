@@ -46,6 +46,12 @@ class User {
   @HiveField(12)
   late Member member;
 
+  User.info({
+    required this.hoTen,
+    required this.avt,
+    required this.idTK,
+  });
+
   User({
     required this.username,
     required this.password,

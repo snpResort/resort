@@ -14,7 +14,9 @@ import 'package:resort/auth/screen/register_page.dart';
 import 'package:resort/auth/screen/verify_page.dart';
 import 'package:resort/cart_page/screen/cart_page.dart';
 import 'package:resort/explore_page/screen/explore_page.dart';
+import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/screen/home_page.dart';
+import 'package:resort/home_page/screen/room_info_page.dart';
 import 'package:resort/user_page/screen/user_info_page.dart';
 import 'package:resort/user_page/screen/user_page.dart';
 
@@ -42,6 +44,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => PUser()),
+        ChangeNotifierProvider(create: (context) => PRoom()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -55,6 +58,7 @@ class MyApp extends StatelessWidget {
           ScreenRegister.id: (context) => const ScreenRegister(),
           VerifyPage.id: (context) => const VerifyPage(),
           RegisterInfo.id: (context) => const RegisterInfo(),
+          RoomInfoPage.id: (context) => const RoomInfoPage(),
           UserInfoPage.id: (context) => const UserInfoPage(),
         },
       ),
@@ -102,6 +106,7 @@ class _AppState extends State<App> {
             ScreenRegister.id: (context) => const ScreenLogin(),
             VerifyPage.id: (context) => const VerifyPage(),
             RegisterInfo.id: (context) => const RegisterInfo(),
+            RoomInfoPage.id: (context) => const RoomInfoPage(),
           },
         ),
       ),

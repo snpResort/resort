@@ -12,6 +12,7 @@ import 'package:resort/home_page/model/rate.dart';
 import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/request/room_request.dart';
+import 'package:resort/home_page/screen/room_info_page.dart';
 import 'package:resort/widgets/carouse_slider.dart';
 import 'package:resort/widgets/custom_lp.dart';
 import 'package:resort/widgets/gradient_mask.dart';
@@ -309,11 +310,25 @@ class _HomePageState extends State<HomePage> {
                             itemCount: 3,
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
-                            itemBuilder: (_, index) {
-                              return favorite_room(
-                                width: _width,
-                                index: index,
-                                room: favRoom.elementAt(index),
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  Provider.of<PRoom>(context, listen: false)
+                                      .setRoom(favRoom.elementAt(index));
+                                  PersistentNavBarNavigator.pushNewScreen(
+                                    context,
+                                    screen: const RoomInfoPage(),
+                                    withNavBar:
+                                        true, // OPTIONAL VALUE. True by default.
+                                    pageTransitionAnimation:
+                                        PageTransitionAnimation.cupertino,
+                                  );
+                                },
+                                child: favorite_room(
+                                  width: _width,
+                                  index: index,
+                                  room: favRoom.elementAt(index),
+                                ),
                               );
                             },
                           ),
@@ -460,16 +475,28 @@ class _loaiPhong extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (_, index) {
-            return Container(
-              margin: EdgeInsets.symmetric(vertical: 15),
-              child: customLP(
-                width: _width,
-                isHorizontal: false,
-                title: '${rooms[index].ten}',
-                price: '${rooms[index].gia}',
-                amoutCmt: sum_cmt(rooms[index].rates),
-                rateStar: '${oCcy.format(avg_rate(rooms[index].rates))}',
-                urlImage: '${rooms[index].images[0]}',
+            return GestureDetector(
+              onTap: () {
+                Provider.of<PRoom>(context, listen: false)
+                    .setRoom(rooms.elementAt(index));
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: const RoomInfoPage(),
+                  withNavBar: true, // OPTIONAL VALUE. True by default.
+                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: 15),
+                child: customLP(
+                  width: _width,
+                  isHorizontal: false,
+                  title: '${rooms[index].ten}',
+                  price: '${rooms[index].gia}',
+                  amoutCmt: sum_cmt(rooms[index].rates),
+                  rateStar: '${oCcy.format(avg_rate(rooms[index].rates))}',
+                  urlImage: '${rooms[index].images[0]}',
+                ),
               ),
             );
           },

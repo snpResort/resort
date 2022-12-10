@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:http/http.dart';
+import 'package:resort/auth/models/user.dart';
 import 'package:resort/constant/app_string.dart';
 import 'package:resort/home_page/model/rate.dart';
 import 'package:resort/home_page/model/room.dart';
@@ -29,7 +30,11 @@ Future<List<Room>?> roomRequest() async {
             ..ngTao = DateTime.parse(rate['NgayTao'])
             ..binhChon = rate['BinhChon']
             ..binhLuan = rate['BinhLuan']
-            ..Id_KH = rate['Id_KH']);
+            ..userInfo = User.info(
+              hoTen: rate['user_info']['HoTen'],
+              avt: '',
+              idTK: rate['user_info']['Id_tk'],
+            ));
         }
 
         r

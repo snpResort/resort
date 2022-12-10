@@ -1,8 +1,10 @@
+import 'package:resort/auth/models/user.dart';
+
 class Rate {
   late DateTime ngTao;
   late String binhLuan;
   late int binhChon;
-  late String Id_KH;
+  late User userInfo;
 
   Rate();
 }

@@ -25,7 +25,7 @@ class customLP extends StatelessWidget {
   final String rateStar;
   final bool isHorizontal;
 
-  final oCcy = new NumberFormat("#,##0");
+  final oCcy = NumberFormat("#,##0");
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +162,7 @@ class customLP_rate extends StatelessWidget {
       : _width = width,
         super(key: key);
 
-  final oCcy = new NumberFormat("#,##0");
+  final oCcy = NumberFormat("#,##0");
 
   final double _width;
   final String title;
