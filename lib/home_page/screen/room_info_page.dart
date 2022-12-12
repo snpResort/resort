@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,11 +8,20 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
+import 'package:resort/cart_page/screen/cart_page.dart';
 import 'package:resort/constant/app_string.dart';
+import 'package:resort/home_page/model/count_info_room.dart';
+import 'package:resort/home_page/model/date_book.dart';
+import 'package:resort/home_page/model/info_book.dart';
+import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/screen/home_page.dart';
+import 'package:resort/main.dart';
+import 'package:resort/widgets/calendar_custom.dart';
 import 'package:resort/widgets/gradient_mask.dart';
+import 'package:resort/widgets/wrong_alert.dart';
 
 class RoomInfoPage extends StatefulWidget {
   const RoomInfoPage({super.key});
@@ -22,17 +33,20 @@ class RoomInfoPage extends StatefulWidget {
 }
 
 class _RoomInfoPageState extends State<RoomInfoPage> {
+  final oCcyStar = NumberFormat("#.#");
+  final oCcyMoney = NumberFormat("#,##0");
+  DateTime _ngayDen = DateTime.now();
+  DateTime _ngayDi = DateTime.now().add(Duration(days: 1));
+  int _soLuongNguoi = 1;
+  int _soLuongNguoiLon = 1;
+  int _soLuongTreEm = 0;
+  int _soLuongPhong = 1;
+  bool _hasRoom = false;
   @override
   Widget build(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
 
     final roomInfo = Provider.of<PRoom>(context, listen: true).room;
-    final oCcyStar = NumberFormat("#.#");
-    final oCcyMoney = NumberFormat("#,##0");
-    DateTime _ngayDen = DateTime.now();
-    DateTime _ngayDi = DateTime.now().add(Duration(days: 1));
-    int _soLuongNguoi = roomInfo!.soNgLon + roomInfo.soTreEm;
-    int _soLuongPhong = 1;
 
     var _spdiver = Container(
       width: 2,
@@ -56,7 +70,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
         body: Stack(
           children: [
             CarouselSlider(
-              items: roomInfo.images.map((image) {
+              items: roomInfo!.images.map((image) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
@@ -231,206 +245,149 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                           },
                         ),
                         const SizedBox(height: 25),
-                        // Container(
-                        //   decoration: BoxDecoration(
-                        //     border: Border.all(color: Colors.black12),
-                        //     borderRadius: BorderRadius.circular(14),
-                        //     color: Colors.white,
-                        //   ),
-                        //   width: _width / 1.1,
-                        //   padding: EdgeInsets.all(15),
-                        //   child: Column(
-                        //     children: [
-                        //       Container(
-                        //         margin: EdgeInsets.symmetric(vertical: 2.5),
-                        //         padding: EdgeInsets.only(
-                        //           top: 5,
-                        //           right: 5,
-                        //           left: 5,
-                        //         ),
-                        //         child: Row(
-                        //           mainAxisAlignment:
-                        //               MainAxisAlignment.spaceBetween,
-                        //           children: [
-                        //             Container(
-                        //               child: Column(
-                        //                 mainAxisAlignment:
-                        //                     MainAxisAlignment.start,
-                        //                 crossAxisAlignment:
-                        //                     CrossAxisAlignment.start,
-                        //                 children: [
-                        //                   Text(
-                        //                     'Giá trung bình một đêm',
-                        //                     style: TextStyle(
-                        //                       fontSize: _width / 26,
-                        //                       fontWeight: FontWeight.w200,
-                        //                     ),
-                        //                   ),
-                        //                   Text(
-                        //                     '${oCcyMoney.format(roomInfo.gia)} ₫',
-                        //                     style: TextStyle(
-                        //                       fontSize: _width / 10,
-                        //                       fontWeight: FontWeight.w400,
-                        //                       color: Colors.green,
-                        //                     ),
-                        //                   ),
-                        //                 ],
-                        //               ),
-                        //             ),
-                        //             Container(
-                        //               padding: EdgeInsets.all(8),
-                        //               decoration: BoxDecoration(
-                        //                 border: Border.all(
-                        //                   color: Colors.red.shade300,
-                        //                 ),
-                        //                 borderRadius: BorderRadius.circular(14),
-                        //               ),
-                        //               child: GestureDetector(
-                        //                 onTap: () {
-                        //                   int _currentValue = 1;
-                        //                   showModalBottomSheet<int>(
-                        //                       context: context,
-                        //                       builder: (BuildContext context) {
-                        //                         return StatefulBuilder(builder:
-                        //                             (BuildContext context,
-                        //                                 StateSetter
-                        //                                     setModalState) {
-                        //                           return Container(
-                        //                             height: 350.0,
-                        //                             child: Container(
-                        //                                 decoration: BoxDecoration(
-                        //                                     color: Colors.white,
-                        //                                     borderRadius: BorderRadius.only(
-                        //                                         topLeft:
-                        //                                             const Radius
-                        //                                                     .circular(
-                        //                                                 20.0),
-                        //                                         topRight:
-                        //                                             const Radius
-                        //                                                     .circular(
-                        //                                                 20.0))),
-                        //                                 child: Column(
-                        //                                   mainAxisAlignment:
-                        //                                       MainAxisAlignment
-                        //                                           .center,
-                        //                                   children: <Widget>[
-                        //                                     NumberPicker(
-                        //                                         value:
-                        //                                             _currentValue,
-                        //                                         minValue: 1,
-                        //                                         maxValue: 1000,
-                        //                                         haptics: true,
-                        //                                         onChanged:
-                        //                                             (value) {
-                        //                                           setModalState(
-                        //                                               () {
-                        //                                             _currentValue =
-                        //                                                 value;
-                        //                                           });
-                        //                                         }),
-                        //                                   ],
-                        //                                 )),
-                        //                           );
-                        //                         });
-                        //                       }).then((value) {
-                        //                     if (value != null) {
-                        //                       setState(
-                        //                           () => _currentValue = value);
-                        //                     }
-                        //                   });
-                        //                 },
-                        //                 child: Row(
-                        //                   children: [
-                        //                     Text(
-                        //                       '1 phòng',
-                        //                       style: TextStyle(
-                        //                         color: Colors.red.shade300,
-                        //                       ),
-                        //                     ),
-                        //                     const SizedBox(width: 5),
-                        //                     Icon(
-                        //                       CupertinoIcons.chevron_down,
-                        //                       size: _width / 21,
-                        //                       color: Colors.red.shade300,
-                        //                     ),
-                        //                   ],
-                        //                 ),
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ),
-                        //       Container(
-                        //         height: 1,
-                        //         width: double.infinity,
-                        //         color: Colors.black12,
-                        //         margin: EdgeInsets.symmetric(vertical: 20),
-                        //       ),
-                        //       Row(
-                        //         mainAxisAlignment:
-                        //             MainAxisAlignment.spaceEvenly,
-                        //         children: [
-                        //           Container(
-                        //             alignment: Alignment.center,
-                        //             margin: EdgeInsets.symmetric(vertical: 2.5),
-                        //             child: Text(
-                        //               'Thêm vào giỏ\nhàng',
-                        //               textAlign: TextAlign.center,
-                        //               style: TextStyle(
-                        //                   color: Colors.blue.shade300,
-                        //                   fontSize: _width / 18),
-                        //             ),
-                        //           ),
-                        //           const SizedBox(width: 10),
-                        //           Container(
-                        //             alignment: Alignment.center,
-                        //             decoration: BoxDecoration(
-                        //               borderRadius: BorderRadius.circular(10),
-                        //               color: Colors.blue.shade300,
-                        //             ),
-                        //             margin: EdgeInsets.symmetric(vertical: 2.5),
-                        //             padding: EdgeInsets.symmetric(
-                        //               horizontal: 25,
-                        //               vertical: 10,
-                        //             ),
-                        //             child: Text(
-                        //               'Đặt ngay',
-                        //               style: TextStyle(
-                        //                   color: Colors.white,
-                        //                   fontSize: _width / 18),
-                        //             ),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black12),
-                            borderRadius: BorderRadius.circular(14),
-                            color: Colors.white,
-                          ),
-                          width: _width / 1.1,
-                          padding: EdgeInsets.all(15),
-                          child: Column(
-                            children: [
-                              Container(
+                        _hasRoom
+                            ? Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.black12),
-                                  borderRadius: BorderRadius.circular(7),
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Colors.white,
                                 ),
-                                margin: EdgeInsets.symmetric(vertical: 2.5),
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                width: _width / 1.1,
+                                padding: EdgeInsets.all(15),
+                                child: Column(
                                   children: [
                                     Container(
+                                      margin:
+                                          EdgeInsets.symmetric(vertical: 2.5),
+                                      padding: EdgeInsets.only(
+                                        top: 5,
+                                        right: 5,
+                                        left: 5,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Giá trung bình một đêm',
+                                                  style: TextStyle(
+                                                    fontSize: _width / 26,
+                                                    fontWeight: FontWeight.w200,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${oCcyMoney.format(roomInfo.gia)} ₫',
+                                                  style: TextStyle(
+                                                    fontSize: _width / 10,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: Colors.black12),
+                                        borderRadius: BorderRadius.circular(7),
+                                      ),
+                                      margin:
+                                          EdgeInsets.symmetric(vertical: 2.5),
+                                      padding: EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_month_outlined,
+                                                  size: _width / 13,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Ngày đến',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 25,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 20,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_month_outlined,
+                                                  size: _width / 13,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Ngày đi',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 25,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 20,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: Colors.black12),
+                                        borderRadius: BorderRadius.circular(7),
+                                      ),
+                                      margin:
+                                          EdgeInsets.symmetric(vertical: 2.5),
+                                      padding: EdgeInsets.all(10),
                                       child: Row(
                                         children: [
                                           Icon(
-                                            Icons.calendar_month_outlined,
+                                            CupertinoIcons.person_3,
                                             size: _width / 13,
                                           ),
                                           const SizedBox(width: 10),
@@ -441,112 +398,448 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Ngày đến',
+                                                'Khách Số lượng phòng',
                                                 style: TextStyle(
                                                   fontSize: _width / 25,
                                                 ),
                                               ),
                                               Text(
-                                                '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
+                                                '$_soLuongNguoi người, $_soLuongPhong phòng',
                                                 style: TextStyle(
                                                   fontSize: _width / 20,
                                                 ),
-                                              )
+                                              ),
                                             ],
-                                          ),
+                                          )
                                         ],
                                       ),
                                     ),
                                     Container(
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_month_outlined,
-                                            size: _width / 13,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Ngày đi',
-                                                style: TextStyle(
-                                                  fontSize: _width / 25,
-                                                ),
-                                              ),
-                                              Text(
-                                                '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
-                                                style: TextStyle(
-                                                  fontSize: _width / 20,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                      height: 1,
+                                      width: double.infinity,
+                                      color: Colors.black12,
+                                      margin:
+                                          EdgeInsets.symmetric(vertical: 20),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black12),
-                                  borderRadius: BorderRadius.circular(7),
-                                ),
-                                margin: EdgeInsets.symmetric(vertical: 2.5),
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      CupertinoIcons.person_3,
-                                      size: _width / 13,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Column(
+                                    Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        Text(
-                                          'Khách Số lượng phòng',
-                                          style: TextStyle(
-                                            fontSize: _width / 25,
-                                          ),
-                                        ),
-                                        Text(
-                                          '$_soLuongNguoi người, $_soLuongPhong phòng',
-                                          style: TextStyle(
-                                            fontSize: _width / 20,
+                                        // GestureDetector(
+                                        //   onTap: () {
+                                        //     Provider.of<PRoom>(context,
+                                        //             listen: false)
+                                        //         .setInfoBook(
+                                        //       InfoBook()
+                                        //         ..gia = roomInfo.gia *
+                                        //             (_ngayDi.day -
+                                        //                 _ngayDen.day +
+                                        //                 1)
+                                        //         ..ngayDat = Provider.of<PRoom>(
+                                        //                 context,
+                                        //                 listen: false)
+                                        //             .dateBook!
+                                        //         ..countInfoRoom =
+                                        //             Provider.of<PRoom>(context,
+                                        //                     listen: false)
+                                        //                 .countInfo!,
+                                        //     );
+                                        //   },
+                                        //   child: Container(
+                                        //     alignment: Alignment.center,
+                                        //     margin: EdgeInsets.symmetric(
+                                        //         vertical: 2.5),
+                                        //     child: Text(
+                                        //       'Thêm vào giỏ\nhàng',
+                                        //       textAlign: TextAlign.center,
+                                        //       style: TextStyle(
+                                        //           color: Colors.blue.shade300,
+                                        //           fontSize: _width / 18),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        // const SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Provider.of<PRoom>(
+                                              context,
+                                              listen: false,
+                                            ).deleteAllInfoBook();
+
+                                            // Todo: select room
+                                            List<String> roomBooked = [];
+                                            for (DateTime d = _ngayDen;
+                                                d.compareTo(_ngayDi) <= 0;
+                                                d = d.add(Duration(days: 1))) {
+                                              roomBooked.addAll(roomInfo
+                                                  .ngayDaDat
+                                                  .where((info) =>
+                                                      d.compareTo(info
+                                                              .timeCheckin!) >=
+                                                          0 &&
+                                                      d.compareTo(info
+                                                              .timeCheckout!) <=
+                                                          0)
+                                                  .map((e) => e.room)
+                                                  .toSet()
+                                                  .toList());
+                                            }
+                                            roomBooked =
+                                                roomBooked.toSet().toList();
+
+                                            // final listRoom = List.from(roomInfo.rooms);
+                                            final phongConTrong = roomInfo.rooms
+                                                .where((room) => !roomBooked
+                                                    .contains(room.tenPhong))
+                                                .toList();
+
+                                            Provider.of<PRoom>(
+                                              context,
+                                              listen: false,
+                                            ).setInfoBook(
+                                              InfoBook()
+                                                ..gia = roomInfo.gia *
+                                                    (_ngayDi.day -
+                                                        _ngayDen.day +
+                                                        1)
+                                                ..ngayDat = (DateBook()
+                                                  ..timeCheckout = _ngayDi
+                                                  ..timeCheckin = _ngayDen)
+                                                ..countInfoRoom =
+                                                    (CountInfoRoom()
+                                                      ..soLuongPhong =
+                                                          _soLuongPhong
+                                                      ..soluongNguoiLon =
+                                                          _soLuongNguoiLon
+                                                      ..soLuongTreEm =
+                                                          _soLuongTreEm)
+                                                ..idPhong = phongConTrong[
+                                                        Random().nextInt(
+                                                            phongConTrong
+                                                                .length)]
+                                                    .id,
+                                            );
+                                            controllerPersistent.jumpToTab(2);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.blue.shade300,
+                                            ),
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 2.5),
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 25,
+                                              vertical: 10,
+                                            ),
+                                            child: Text(
+                                              'Đặt ngay',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: _width / 18),
+                                            ),
                                           ),
                                         ),
                                       ],
-                                    )
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black12),
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Colors.white,
+                                ),
+                                width: _width / 1.1,
+                                padding: EdgeInsets.all(15),
+                                child: Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        CalendarCustom(
+                                          context,
+                                          _ngayDen,
+                                          _ngayDi,
+                                          roomInfo.ngayDaDat,
+                                        ).then((value) {
+                                          DateBook dateBook =
+                                              Provider.of<PRoom>(context,
+                                                      listen: false)
+                                                  .dateBook!;
+                                          setState(() {
+                                            _ngayDi = dateBook.timeCheckout!;
+                                            _ngayDen = dateBook.timeCheckin!;
+                                          });
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.black12),
+                                          borderRadius:
+                                              BorderRadius.circular(7),
+                                        ),
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 2.5),
+                                        padding: EdgeInsets.all(10),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons
+                                                        .calendar_month_outlined,
+                                                    size: _width / 13,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        'Ngày đến',
+                                                        style: TextStyle(
+                                                          fontSize: _width / 25,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
+                                                        style: TextStyle(
+                                                          fontSize: _width / 20,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons
+                                                        .calendar_month_outlined,
+                                                    size: _width / 13,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        'Ngày đi',
+                                                        style: TextStyle(
+                                                          fontSize: _width / 25,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
+                                                        style: TextStyle(
+                                                          fontSize: _width / 20,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showModalBottomSheet<int>(
+                                            isDismissible: false,
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return CustomCountNumber(
+                                                soLuongPhong: _soLuongPhong,
+                                                soluongNguoiLon:
+                                                    _soLuongNguoiLon,
+                                                soLuongTreEm: _soLuongTreEm,
+                                              );
+                                            }).then((value) {
+                                          setState(() {
+                                            final countInfo =
+                                                Provider.of<PRoom>(context,
+                                                        listen: false)
+                                                    .countInfo!;
+                                            _soLuongNguoiLon =
+                                                countInfo.soluongNguoiLon;
+                                            _soLuongTreEm =
+                                                countInfo.soLuongTreEm;
+                                            _soLuongNguoi = _soLuongNguoiLon +
+                                                _soLuongTreEm;
+                                            _soLuongPhong =
+                                                countInfo.soLuongPhong;
+                                          });
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.black12),
+                                          borderRadius:
+                                              BorderRadius.circular(7),
+                                        ),
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 2.5),
+                                        padding: EdgeInsets.all(10),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              CupertinoIcons.person_3,
+                                              size: _width / 13,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Khách Số lượng phòng',
+                                                  style: TextStyle(
+                                                    fontSize: _width / 25,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '$_soLuongNguoi người, $_soLuongPhong phòng',
+                                                  style: TextStyle(
+                                                    fontSize: _width / 20,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (roomInfo.ngayDaDat
+                                                    .where((info) =>
+                                                        _ngayDen.compareTo(info
+                                                                .timeCheckin!) >=
+                                                            0 &&
+                                                        _ngayDen.compareTo(info
+                                                                .timeCheckout!) <=
+                                                            0)
+                                                    .map((e) => e.room)
+                                                    .toSet()
+                                                    .length ==
+                                                roomInfo.soLuongPhong ||
+                                            roomInfo.ngayDaDat
+                                                    .where((info) =>
+                                                        _ngayDi.compareTo(info
+                                                                .timeCheckin!) >=
+                                                            0 &&
+                                                        _ngayDi.compareTo(info
+                                                                .timeCheckout!) <=
+                                                            0)
+                                                    .map((e) => e.room)
+                                                    .toSet()
+                                                    .length ==
+                                                roomInfo.soLuongPhong) {
+                                          ackAlert(
+                                            context,
+                                            'Tìm không thấy phòng trống',
+                                          );
+                                        } else {
+                                          if (_soLuongNguoi >
+                                              roomInfo.soNgLon +
+                                                  roomInfo.soTreEm) {
+                                            ackAlert(
+                                              context,
+                                              'Số lượng người không phù hợp',
+                                            );
+                                            return;
+                                          }
+
+                                          int flagCheckSumRoom = 0;
+                                          int maxCountRoom = 0;
+                                          for (DateTime d = _ngayDen;
+                                              d.compareTo(_ngayDi) <= 0;
+                                              d = d.add(Duration(days: 1))) {
+                                            flagCheckSumRoom = roomInfo
+                                                .ngayDaDat
+                                                .where((info) =>
+                                                    d.compareTo(info
+                                                            .timeCheckin!) >=
+                                                        0 &&
+                                                    d.compareTo(info
+                                                            .timeCheckout!) <=
+                                                        0)
+                                                .map((e) => e.room)
+                                                .toSet()
+                                                .length;
+
+                                            if (flagCheckSumRoom ==
+                                                roomInfo.soLuongPhong) {
+                                              ackAlert(
+                                                context,
+                                                'Tìm không thấy phòng trống',
+                                              );
+                                              return;
+                                            }
+                                            if (maxCountRoom <
+                                                flagCheckSumRoom) {
+                                              maxCountRoom = flagCheckSumRoom;
+                                            }
+                                          }
+                                          print(
+                                              '=======maxCountRoom: $maxCountRoom');
+                                          if (_soLuongPhong >
+                                              roomInfo.soLuongPhong -
+                                                  maxCountRoom) {
+                                            ackAlert(
+                                              context,
+                                              'Số lượng phòng trống không đủ',
+                                            );
+                                            return;
+                                          }
+                                          setState(() {
+                                            _hasRoom = true;
+                                          });
+                                        }
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.orange.shade300,
+                                        ),
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 2.5),
+                                        padding: EdgeInsets.all(10),
+                                        child: Text(
+                                          'Kiểm tra tình trạng',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: _width / 18),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              Container(
-                                width: double.infinity,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.orange.shade300,
-                                ),
-                                margin: EdgeInsets.symmetric(vertical: 2.5),
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  'Kiểm tra tình trạng',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: _width / 18),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                         const SizedBox(height: 35),
                         _title('Thông tin đánh giá'),
                         const SizedBox(height: 25),
@@ -728,6 +1021,272 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CustomCountNumber extends StatefulWidget {
+  CustomCountNumber({
+    super.key,
+    required this.soLuongPhong,
+    required this.soLuongTreEm,
+    required this.soluongNguoiLon,
+  });
+  int soluongNguoiLon;
+  int soLuongTreEm;
+  int soLuongPhong;
+
+  @override
+  State<CustomCountNumber> createState() => _CustomCountNumberState();
+}
+
+class _CustomCountNumberState extends State<CustomCountNumber> {
+  @override
+  Widget build(BuildContext context) {
+    final _width = MediaQuery.of(context).size.width;
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 25),
+      color: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Số lượng người lớn:'),
+              const SizedBox(width: 25),
+              Container(
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.soluongNguoiLon > 1) {
+                            widget.soluongNguoiLon--;
+                          }
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(50),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.remove,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Container(
+                      alignment: Alignment.center,
+                      width: 20,
+                      child: Text(
+                        '${widget.soluongNguoiLon}',
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.soluongNguoiLon < 10) {
+                            widget.soluongNguoiLon++;
+                          }
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.horizontal(
+                              right: Radius.circular(50)),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.plus,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Số lượng trẻ em:'),
+              const SizedBox(width: 25),
+              Container(
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.soLuongTreEm > 0) {
+                            widget.soLuongTreEm--;
+                          }
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(50),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.remove,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Container(
+                      alignment: Alignment.center,
+                      width: 20,
+                      child: Text(
+                        '${widget.soLuongTreEm}',
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.soLuongTreEm < 10) {
+                            widget.soLuongTreEm++;
+                          }
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.horizontal(
+                              right: Radius.circular(50)),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.plus,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     const Text('Số lượng phòng:'),
+          //     const SizedBox(width: 25),
+          //     Container(
+          //       child: Row(
+          //         children: [
+          //           GestureDetector(
+          //             onTap: () {
+          //               setState(() {
+          //                 if (widget.soLuongPhong > 1) {
+          //                   widget.soLuongPhong--;
+          //                 }
+          //               });
+          //             },
+          //             child: Container(
+          //               alignment: Alignment.center,
+          //               decoration: BoxDecoration(
+          //                 color: Colors.amber,
+          //                 borderRadius: BorderRadius.horizontal(
+          //                   left: Radius.circular(50),
+          //                 ),
+          //               ),
+          //               child: Icon(
+          //                 Icons.remove,
+          //                 size: 20,
+          //                 color: Colors.white,
+          //               ),
+          //             ),
+          //           ),
+          //           const SizedBox(width: 20),
+          //           Container(
+          //             alignment: Alignment.center,
+          //             width: 20,
+          //             child: Text(
+          //               '${widget.soLuongPhong}',
+          //             ),
+          //           ),
+          //           const SizedBox(width: 20),
+          //           GestureDetector(
+          //             onTap: () {
+          //               setState(() {
+          //                 if (widget.soLuongPhong < 10) {
+          //                   widget.soLuongPhong++;
+          //                 }
+          //               });
+          //             },
+          //             child: Container(
+          //               alignment: Alignment.center,
+          //               decoration: BoxDecoration(
+          //                 color: Colors.amber,
+          //                 borderRadius: BorderRadius.horizontal(
+          //                     right: Radius.circular(50)),
+          //               ),
+          //               child: Icon(
+          //                 CupertinoIcons.plus,
+          //                 size: 20,
+          //                 color: Colors.white,
+          //               ),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // const SizedBox(height: 20),
+          GestureDetector(
+            onTap: () {
+              CountInfoRoom countInfoRoom = CountInfoRoom();
+              countInfoRoom
+                ..soLuongPhong = widget.soLuongPhong
+                ..soLuongTreEm = widget.soLuongTreEm
+                ..soluongNguoiLon = widget.soluongNguoiLon;
+
+              Provider.of<PRoom>(context, listen: false)
+                  .setCountInfo(countInfoRoom);
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.blue.shade300,
+              ),
+              margin: EdgeInsets.symmetric(vertical: 2.5),
+              padding: EdgeInsets.all(10),
+              child: Text(
+                'Xác nhận',
+                style: TextStyle(color: Colors.white, fontSize: _width / 18),
+              ),
+            ),
+          ),
+          const SizedBox(height: 60),
+        ],
       ),
     );
   }

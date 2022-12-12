@@ -47,7 +47,7 @@ class _AboutPageState extends State<AboutPage> {
                     Text(
                       'Moonlight Resort',
                       style: TextStyle(
-                        fontSize: _width / 15,
+                        fontSize: _width / 17,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -56,7 +56,7 @@ class _AboutPageState extends State<AboutPage> {
                 Text(
                   '140 Lê Trọng Tấn, Phường Tây Thành, Quận Tân Phú, Thành Phố Hồ Chí Minh',
                   style: TextStyle(
-                    fontSize: _width / 19,
+                    fontSize: _width / 17,
                     fontWeight: FontWeight.w300,
                   ),
                 ),
@@ -70,7 +70,7 @@ class _AboutPageState extends State<AboutPage> {
                       Text(
                         '036 241 7182',
                         style: TextStyle(
-                          fontSize: _width / 15,
+                          fontSize: _width / 17,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -87,7 +87,7 @@ class _AboutPageState extends State<AboutPage> {
                       Text(
                         'moonlightresort@gmail.com',
                         style: TextStyle(
-                          fontSize: _width / 15,
+                          fontSize: _width / 17,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

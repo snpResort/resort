@@ -73,10 +73,11 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
+PersistentTabController controllerPersistent =
+    PersistentTabController(initialIndex: 0);
+
 class _AppState extends State<App> {
   final _isLogin = false;
-  PersistentTabController _controller =
-      PersistentTabController(initialIndex: 0);
 
   List<Widget> _buildScreens(context) {
     final tabPage = <Widget>[
@@ -166,7 +167,7 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return PersistentTabView(
       context,
-      controller: _controller,
+      controller: controllerPersistent,
       screens: _buildScreens(context),
       items: _navBarsItems(context),
       resizeToAvoidBottomInset: true,
