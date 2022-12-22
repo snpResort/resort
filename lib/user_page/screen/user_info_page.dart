@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/provider.dart';
+import 'package:resort/auth/models/user.dart';
+import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/main.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -11,13 +15,30 @@ class UserInfoPage extends StatefulWidget {
 }
 
 class _UserInfoPageState extends State<UserInfoPage> {
+  User? user;
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    user = Provider.of<PUser>(context).user;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.black26,
+        elevation: 1,
+        backgroundColor: Colors.white,
         centerTitle: true,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: Icon(
+            CupertinoIcons.back,
+            color: Colors.black,
+          ),
+        ),
         title: Text(
           'Thông tin cá nhân',
           style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
@@ -26,12 +47,13 @@ class _UserInfoPageState extends State<UserInfoPage> {
       body: Container(
         child: Column(
           children: [
-            DataTableCustom(flex: 2, {
-              'Họ tên': 'Từ Huệ Sơn',
-              'Email': 'tuhueson@gmail.com',
-              'Căn căn công dân': '079201014714',
-              'Số điện thoại': '0938252793',
-              'Mã thành viên': '2225555',
+            const SizedBox(height: 10),
+            DataTableCustom(flex: 3, {
+              'Họ tên': '${user!.hoTen}',
+              'Email': '${user!.email}',
+              'Căn căn công dân': '${user!.canCuoc}',
+              'Số điện thoại': '${user!.sdt}',
+              'Mã thành viên': '${user!.idTK}',
             }),
           ],
         ),
@@ -52,6 +74,7 @@ class DataTableCustom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _width = MediaQuery.of(context).size.width;
     return Container(
       // decoration:
       //     BoxDecoration(border: Border.all(width: .5, color: Colors.grey)),
@@ -66,7 +89,10 @@ class DataTableCustom extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
-                      child: Text(e),
+                      child: Text(
+                        e,
+                        style: TextStyle(fontSize: _width / 22),
+                      ),
                     ),
                   ),
                   Expanded(
@@ -76,7 +102,10 @@ class DataTableCustom extends StatelessWidget {
                           horizontal: 10, vertical: 10),
                       child: Row(
                         children: [
-                          Text(data[e]!),
+                          Text(
+                            data[e]!,
+                            style: TextStyle(fontSize: _width / 22),
+                          ),
                         ],
                       ),
                     ),

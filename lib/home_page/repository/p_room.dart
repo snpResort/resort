@@ -27,6 +27,16 @@ class PRoom extends ChangeNotifier {
     return true;
   }
 
+  bool deleteInfoBook_p(String tenPhong) {
+    final infoBook =
+        this.infoBook.firstWhere((element) => element.tenLP == tenPhong);
+    this.infoBook.remove(infoBook);
+
+    notifyListeners();
+
+    return true;
+  }
+
   bool deleteInfoBook(InfoBook infoBook) {
     this.infoBook.remove(infoBook);
 

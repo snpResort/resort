@@ -21,6 +21,8 @@ import 'package:resort/home_page/screen/home_page.dart';
 import 'package:resort/main.dart';
 import 'package:resort/widgets/calendar_custom.dart';
 import 'package:resort/widgets/gradient_mask.dart';
+import 'package:resort/widgets/success_alert.dart';
+import 'package:resort/widgets/warning_alert.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
 class RoomInfoPage extends StatefulWidget {
@@ -42,6 +44,8 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
   int _soLuongTreEm = 0;
   int _soLuongPhong = 1;
   bool _hasRoom = false;
+  bool _isLoad = false;
+
   @override
   Widget build(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
@@ -425,40 +429,243 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        // GestureDetector(
-                                        //   onTap: () {
-                                        //     Provider.of<PRoom>(context,
-                                        //             listen: false)
-                                        //         .setInfoBook(
-                                        //       InfoBook()
-                                        //         ..gia = roomInfo.gia *
-                                        //             (_ngayDi.day -
-                                        //                 _ngayDen.day +
-                                        //                 1)
-                                        //         ..ngayDat = Provider.of<PRoom>(
-                                        //                 context,
-                                        //                 listen: false)
-                                        //             .dateBook!
-                                        //         ..countInfoRoom =
-                                        //             Provider.of<PRoom>(context,
-                                        //                     listen: false)
-                                        //                 .countInfo!,
-                                        //     );
-                                        //   },
-                                        //   child: Container(
-                                        //     alignment: Alignment.center,
-                                        //     margin: EdgeInsets.symmetric(
-                                        //         vertical: 2.5),
-                                        //     child: Text(
-                                        //       'Thêm vào giỏ\nhàng',
-                                        //       textAlign: TextAlign.center,
-                                        //       style: TextStyle(
-                                        //           color: Colors.blue.shade300,
-                                        //           fontSize: _width / 18),
-                                        //     ),
-                                        //   ),
-                                        // ),
-                                        // const SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () {
+                                            final infoBooks =
+                                                Provider.of<PRoom>(
+                                              context,
+                                              listen: false,
+                                            ).infoBook;
+
+                                            // Todo: check khác ngày
+                                            bool _isKhacNgay = infoBooks
+                                                .where((infoBook) =>
+                                                    DateTime(
+                                                          infoBook
+                                                              .ngayDat
+                                                              .timeCheckin!
+                                                              .year,
+                                                          infoBook
+                                                              .ngayDat
+                                                              .timeCheckin!
+                                                              .month,
+                                                          infoBook.ngayDat
+                                                              .timeCheckin!.day,
+                                                        ).compareTo(DateTime(
+                                                          _ngayDen.year,
+                                                          _ngayDen.month,
+                                                          _ngayDen.day,
+                                                        )) !=
+                                                        0 ||
+                                                    DateTime(
+                                                          infoBook
+                                                              .ngayDat
+                                                              .timeCheckout!
+                                                              .year,
+                                                          infoBook
+                                                              .ngayDat
+                                                              .timeCheckout!
+                                                              .month,
+                                                          infoBook
+                                                              .ngayDat
+                                                              .timeCheckout!
+                                                              .day,
+                                                        ).compareTo(DateTime(
+                                                          _ngayDi.year,
+                                                          _ngayDi.month,
+                                                          _ngayDi.day,
+                                                        )) !=
+                                                        0)
+                                                .isNotEmpty;
+
+                                            bool _isRoomExists = infoBooks
+                                                .where((infoBook) =>
+                                                    infoBook.tenLP ==
+                                                    roomInfo.ten)
+                                                .isNotEmpty;
+
+                                            print(
+                                                '===========================');
+                                            print(
+                                                '======_isKhacNgay : $_isKhacNgay ======');
+                                            print(
+                                                '======_isRoomExists : $_isRoomExists ======');
+
+                                            // Todo: check room exists
+                                            if (_isKhacNgay || _isRoomExists) {
+                                              warningAlert(
+                                                context,
+                                                _isKhacNgay
+                                                    ? "Thời gian đặt phòng có sự thay đổi, bạn có muốn làm mới giỏ hàng"
+                                                    : 'Phòng này đã có trong giỏ hàng bạn có muốn thay đổi?',
+                                                onCancel: () {
+                                                  setState(() {
+                                                    _isLoad = false;
+                                                  });
+                                                },
+                                                onOK: () {
+                                                  if (_isKhacNgay) {
+                                                    Provider.of<PRoom>(
+                                                      context,
+                                                      listen: false,
+                                                    ).deleteAllInfoBook();
+                                                  } else {
+                                                    Provider.of<PRoom>(
+                                                      context,
+                                                      listen: false,
+                                                    ).deleteInfoBook_p(
+                                                      roomInfo.ten,
+                                                    );
+                                                  }
+                                                  // Todo: select room
+                                                  List<String> roomBooked = [];
+                                                  for (DateTime d = _ngayDen;
+                                                      d.compareTo(_ngayDi) <= 0;
+                                                      d = d.add(
+                                                          Duration(days: 1))) {
+                                                    roomBooked.addAll(roomInfo
+                                                        .ngayDaDat
+                                                        .where((info) =>
+                                                            d.compareTo(info
+                                                                    .timeCheckin!) >=
+                                                                0 &&
+                                                            d.compareTo(info
+                                                                    .timeCheckout!) <=
+                                                                0)
+                                                        .map((e) => e.room)
+                                                        .toSet()
+                                                        .toList());
+                                                  }
+                                                  roomBooked = roomBooked
+                                                      .toSet()
+                                                      .toList();
+
+                                                  // final listRoom = List.from(roomInfo.rooms);
+                                                  final phongConTrong = roomInfo
+                                                      .rooms
+                                                      .where((room) =>
+                                                          !roomBooked.contains(
+                                                              room.tenPhong))
+                                                      .toList();
+
+                                                  Provider.of<PRoom>(
+                                                    context,
+                                                    listen: false,
+                                                  ).setInfoBook(InfoBook()
+                                                    ..tenLP = roomInfo.ten
+                                                    ..gia = roomInfo.gia *
+                                                        (_ngayDi.day -
+                                                            _ngayDen.day +
+                                                            1)
+                                                    ..ngayDat = (DateBook()
+                                                      ..timeCheckout = _ngayDi
+                                                      ..timeCheckin = _ngayDen)
+                                                    ..countInfoRoom =
+                                                        (CountInfoRoom()
+                                                          ..soLuongPhong =
+                                                              _soLuongPhong
+                                                          ..soluongNguoiLon =
+                                                              _soLuongNguoiLon
+                                                          ..soLuongTreEm =
+                                                              _soLuongTreEm)
+                                                    ..idPhong = phongConTrong
+                                                        .take(_soLuongPhong)
+                                                        .map((phongTrong) =>
+                                                            phongTrong.id)
+                                                        .toList());
+
+                                                  Future.delayed(const Duration(
+                                                          milliseconds: 1000))
+                                                      .then(
+                                                    (value) {
+                                                      succesAlert(
+                                                        context,
+                                                        'Cập nhật thành công',
+                                                      );
+                                                      setState(() {
+                                                        _isLoad = false;
+                                                      });
+                                                    },
+                                                  );
+                                                },
+                                              );
+                                              setState(() {
+                                                _hasRoom = false;
+                                                _isLoad = true;
+                                              });
+                                              return;
+                                            }
+
+                                            // Todo: select room
+                                            List<String> roomBooked = [];
+                                            for (DateTime d = _ngayDen;
+                                                d.compareTo(_ngayDi) <= 0;
+                                                d = d.add(Duration(days: 1))) {
+                                              roomBooked.addAll(roomInfo
+                                                  .ngayDaDat
+                                                  .where((info) =>
+                                                      d.compareTo(info
+                                                              .timeCheckin!) >=
+                                                          0 &&
+                                                      d.compareTo(info
+                                                              .timeCheckout!) <=
+                                                          0)
+                                                  .map((e) => e.room)
+                                                  .toSet()
+                                                  .toList());
+                                            }
+                                            roomBooked =
+                                                roomBooked.toSet().toList();
+
+                                            // final listRoom = List.from(roomInfo.rooms);
+                                            final phongConTrong = roomInfo.rooms
+                                                .where((room) => !roomBooked
+                                                    .contains(room.tenPhong))
+                                                .toList();
+
+                                            Provider.of<PRoom>(
+                                              context,
+                                              listen: false,
+                                            ).setInfoBook(InfoBook()
+                                              ..tenLP = roomInfo.ten
+                                              ..gia = roomInfo.gia *
+                                                  (_ngayDi.day -
+                                                      _ngayDen.day +
+                                                      1)
+                                              ..ngayDat = (DateBook()
+                                                ..timeCheckout = _ngayDi
+                                                ..timeCheckin = _ngayDen)
+                                              ..countInfoRoom = (CountInfoRoom()
+                                                ..soLuongPhong = _soLuongPhong
+                                                ..soluongNguoiLon =
+                                                    _soLuongNguoiLon
+                                                ..soLuongTreEm = _soLuongTreEm)
+                                              ..idPhong = phongConTrong
+                                                  .take(_soLuongPhong)
+                                                  .map((phongTrong) =>
+                                                      phongTrong.id)
+                                                  .toList());
+
+                                            succesAlert(context,
+                                                'Thêm vào giỏ hàng thành công');
+                                            setState(() {
+                                              _hasRoom = false;
+                                            });
+                                          },
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 2.5),
+                                            child: Text(
+                                              'Thêm vào giỏ\nhàng',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.blue.shade300,
+                                                  fontSize: _width / 18),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
                                         GestureDetector(
                                           onTap: () {
                                             Provider.of<PRoom>(
@@ -513,14 +720,16 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                           _soLuongNguoiLon
                                                       ..soLuongTreEm =
                                                           _soLuongTreEm)
-                                                ..idPhong = phongConTrong[
-                                                        Random().nextInt(
-                                                            phongConTrong
-                                                                .length)]
-                                                    .id,
+                                                ..idPhong = phongConTrong
+                                                    .take(_soLuongPhong)
+                                                    .map((phongTrong) =>
+                                                        phongTrong.id)
+                                                    .toList(),
                                             );
                                             controllerPersistent.jumpToTab(2);
-                                            Navigator.of(context).pop();
+                                            setState(() {
+                                              _hasRoom = false;
+                                            });
                                           },
                                           child: Container(
                                             alignment: Alignment.center,
@@ -548,298 +757,315 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                   ],
                                 ),
                               )
-                            : Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black12),
-                                  borderRadius: BorderRadius.circular(14),
-                                  color: Colors.white,
-                                ),
-                                width: _width / 1.1,
-                                padding: EdgeInsets.all(15),
-                                child: Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        CalendarCustom(
-                                          context,
-                                          _ngayDen,
-                                          _ngayDi,
-                                          roomInfo.ngayDaDat,
-                                        ).then((value) {
-                                          DateBook dateBook =
-                                              Provider.of<PRoom>(context,
-                                                      listen: false)
-                                                  .dateBook!;
-                                          setState(() {
-                                            _ngayDi = dateBook.timeCheckout!;
-                                            _ngayDen = dateBook.timeCheckin!;
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: Colors.black12),
-                                          borderRadius:
-                                              BorderRadius.circular(7),
-                                        ),
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 2.5),
-                                        padding: EdgeInsets.all(10),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Container(
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons
-                                                        .calendar_month_outlined,
-                                                    size: _width / 13,
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        'Ngày đến',
-                                                        style: TextStyle(
-                                                          fontSize: _width / 25,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
-                                                        style: TextStyle(
-                                                          fontSize: _width / 20,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Container(
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons
-                                                        .calendar_month_outlined,
-                                                    size: _width / 13,
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        'Ngày đi',
-                                                        style: TextStyle(
-                                                          fontSize: _width / 25,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
-                                                        style: TextStyle(
-                                                          fontSize: _width / 20,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                            : _isLoad
+                                ? Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.black12),
+                                      borderRadius: BorderRadius.circular(14),
+                                      color: Colors.white,
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        showModalBottomSheet<int>(
-                                            isDismissible: false,
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return CustomCountNumber(
-                                                soLuongPhong: _soLuongPhong,
-                                                soluongNguoiLon:
-                                                    _soLuongNguoiLon,
-                                                soLuongTreEm: _soLuongTreEm,
-                                              );
-                                            }).then((value) {
-                                          setState(() {
-                                            final countInfo =
-                                                Provider.of<PRoom>(context,
-                                                        listen: false)
-                                                    .countInfo!;
-                                            _soLuongNguoiLon =
-                                                countInfo.soluongNguoiLon;
-                                            _soLuongTreEm =
-                                                countInfo.soLuongTreEm;
-                                            _soLuongNguoi = _soLuongNguoiLon +
-                                                _soLuongTreEm;
-                                            _soLuongPhong =
-                                                countInfo.soLuongPhong;
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: Colors.black12),
-                                          borderRadius:
-                                              BorderRadius.circular(7),
-                                        ),
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 2.5),
-                                        padding: EdgeInsets.all(10),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              CupertinoIcons.person_3,
-                                              size: _width / 13,
+                                    width: _width / 1.1,
+                                    padding: EdgeInsets.all(15),
+                                    child: Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            CalendarCustom(
+                                              context,
+                                              _ngayDen,
+                                              _ngayDi,
+                                              roomInfo.ngayDaDat,
+                                            ).then((value) {
+                                              DateBook dateBook =
+                                                  Provider.of<PRoom>(context,
+                                                          listen: false)
+                                                      .dateBook!;
+                                              setState(() {
+                                                _ngayDi =
+                                                    dateBook.timeCheckout!;
+                                                _ngayDen =
+                                                    dateBook.timeCheckin!;
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black12),
+                                              borderRadius:
+                                                  BorderRadius.circular(7),
                                             ),
-                                            const SizedBox(width: 10),
-                                            Column(
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 2.5),
+                                            padding: EdgeInsets.all(10),
+                                            child: Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
-                                                Text(
-                                                  'Khách Số lượng phòng',
-                                                  style: TextStyle(
-                                                    fontSize: _width / 25,
+                                                Container(
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .calendar_month_outlined,
+                                                        size: _width / 13,
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            'Ngày đến',
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  _width / 25,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  _width / 20,
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                Text(
-                                                  '$_soLuongNguoi người, $_soLuongPhong phòng',
-                                                  style: TextStyle(
-                                                    fontSize: _width / 20,
+                                                Container(
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .calendar_month_outlined,
+                                                        size: _width / 13,
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            'Ngày đi',
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  _width / 25,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  _width / 20,
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ],
-                                            )
-                                          ],
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        if (roomInfo.ngayDaDat
-                                                    .where((info) =>
-                                                        _ngayDen.compareTo(info
-                                                                .timeCheckin!) >=
-                                                            0 &&
-                                                        _ngayDen.compareTo(info
-                                                                .timeCheckout!) <=
-                                                            0)
-                                                    .map((e) => e.room)
-                                                    .toSet()
-                                                    .length ==
-                                                roomInfo.soLuongPhong ||
-                                            roomInfo.ngayDaDat
-                                                    .where((info) =>
-                                                        _ngayDi.compareTo(info
-                                                                .timeCheckin!) >=
-                                                            0 &&
-                                                        _ngayDi.compareTo(info
-                                                                .timeCheckout!) <=
-                                                            0)
-                                                    .map((e) => e.room)
-                                                    .toSet()
-                                                    .length ==
-                                                roomInfo.soLuongPhong) {
-                                          ackAlert(
-                                            context,
-                                            'Tìm không thấy phòng trống',
-                                          );
-                                        } else {
-                                          if (_soLuongNguoi >
-                                              roomInfo.soNgLon +
-                                                  roomInfo.soTreEm) {
-                                            ackAlert(
-                                              context,
-                                              'Số lượng người không phù hợp',
-                                            );
-                                            return;
-                                          }
-
-                                          int flagCheckSumRoom = 0;
-                                          int maxCountRoom = 0;
-                                          for (DateTime d = _ngayDen;
-                                              d.compareTo(_ngayDi) <= 0;
-                                              d = d.add(Duration(days: 1))) {
-                                            flagCheckSumRoom = roomInfo
-                                                .ngayDaDat
-                                                .where((info) =>
-                                                    d.compareTo(info
-                                                            .timeCheckin!) >=
-                                                        0 &&
-                                                    d.compareTo(info
-                                                            .timeCheckout!) <=
-                                                        0)
-                                                .map((e) => e.room)
-                                                .toSet()
-                                                .length;
-
-                                            if (flagCheckSumRoom ==
-                                                roomInfo.soLuongPhong) {
+                                        GestureDetector(
+                                          onTap: () {
+                                            showModalBottomSheet<int>(
+                                                isDismissible: false,
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return CustomCountNumber(
+                                                    soLuongPhong: _soLuongPhong,
+                                                    soluongNguoiLon:
+                                                        _soLuongNguoiLon,
+                                                    soLuongTreEm: _soLuongTreEm,
+                                                  );
+                                                }).then((value) {
+                                              setState(() {
+                                                final countInfo =
+                                                    Provider.of<PRoom>(context,
+                                                            listen: false)
+                                                        .countInfo!;
+                                                _soLuongNguoiLon =
+                                                    countInfo.soluongNguoiLon;
+                                                _soLuongTreEm =
+                                                    countInfo.soLuongTreEm;
+                                                _soLuongNguoi =
+                                                    _soLuongNguoiLon +
+                                                        _soLuongTreEm;
+                                                _soLuongPhong =
+                                                    countInfo.soLuongPhong;
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black12),
+                                              borderRadius:
+                                                  BorderRadius.circular(7),
+                                            ),
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 2.5),
+                                            padding: EdgeInsets.all(10),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  CupertinoIcons.person_3,
+                                                  size: _width / 13,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Khách Số lượng phòng',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 25,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '$_soLuongNguoi người, $_soLuongPhong phòng',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 20,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (roomInfo.ngayDaDat
+                                                        .where((info) =>
+                                                            _ngayDen.compareTo(info
+                                                                    .timeCheckin!) >=
+                                                                0 &&
+                                                            _ngayDen.compareTo(info
+                                                                    .timeCheckout!) <=
+                                                                0)
+                                                        .map((e) => e.room)
+                                                        .toSet()
+                                                        .length ==
+                                                    roomInfo.soLuongPhong ||
+                                                roomInfo.ngayDaDat
+                                                        .where((info) =>
+                                                            _ngayDi.compareTo(info
+                                                                    .timeCheckin!) >=
+                                                                0 &&
+                                                            _ngayDi.compareTo(info
+                                                                    .timeCheckout!) <=
+                                                                0)
+                                                        .map((e) => e.room)
+                                                        .toSet()
+                                                        .length ==
+                                                    roomInfo.soLuongPhong) {
                                               ackAlert(
                                                 context,
                                                 'Tìm không thấy phòng trống',
                                               );
-                                              return;
+                                            } else {
+                                              if (_soLuongNguoi >
+                                                  roomInfo.soNgLon +
+                                                      roomInfo.soTreEm) {
+                                                ackAlert(
+                                                  context,
+                                                  'Số lượng người không phù hợp',
+                                                );
+                                                return;
+                                              }
+
+                                              int flagCheckSumRoom = 0;
+                                              int maxCountRoom = 0;
+                                              for (DateTime d = _ngayDen;
+                                                  d.compareTo(_ngayDi) <= 0;
+                                                  d = d
+                                                      .add(Duration(days: 1))) {
+                                                flagCheckSumRoom = roomInfo
+                                                    .ngayDaDat
+                                                    .where((info) =>
+                                                        d.compareTo(info
+                                                                .timeCheckin!) >=
+                                                            0 &&
+                                                        d.compareTo(info
+                                                                .timeCheckout!) <=
+                                                            0)
+                                                    .map((e) => e.room)
+                                                    .toSet()
+                                                    .length;
+
+                                                if (flagCheckSumRoom ==
+                                                    roomInfo.soLuongPhong) {
+                                                  ackAlert(
+                                                    context,
+                                                    'Tìm không thấy phòng trống',
+                                                  );
+                                                  return;
+                                                }
+                                                if (maxCountRoom <
+                                                    flagCheckSumRoom) {
+                                                  maxCountRoom =
+                                                      flagCheckSumRoom;
+                                                }
+                                              }
+                                              print(
+                                                  '=======maxCountRoom: $maxCountRoom');
+                                              if (_soLuongPhong >
+                                                  roomInfo.soLuongPhong -
+                                                      maxCountRoom) {
+                                                ackAlert(
+                                                  context,
+                                                  'Số lượng phòng trống không đủ',
+                                                );
+                                                return;
+                                              }
+                                              setState(() {
+                                                _hasRoom = true;
+                                              });
                                             }
-                                            if (maxCountRoom <
-                                                flagCheckSumRoom) {
-                                              maxCountRoom = flagCheckSumRoom;
-                                            }
-                                          }
-                                          print(
-                                              '=======maxCountRoom: $maxCountRoom');
-                                          if (_soLuongPhong >
-                                              roomInfo.soLuongPhong -
-                                                  maxCountRoom) {
-                                            ackAlert(
-                                              context,
-                                              'Số lượng phòng trống không đủ',
-                                            );
-                                            return;
-                                          }
-                                          setState(() {
-                                            _hasRoom = true;
-                                          });
-                                        }
-                                      },
-                                      child: Container(
-                                        width: double.infinity,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: Colors.orange.shade300,
+                                          },
+                                          child: Container(
+                                            width: double.infinity,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.orange.shade300,
+                                            ),
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 2.5),
+                                            padding: EdgeInsets.all(10),
+                                            child: Text(
+                                              'Kiểm tra tình trạng',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: _width / 18),
+                                            ),
+                                          ),
                                         ),
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 2.5),
-                                        padding: EdgeInsets.all(10),
-                                        child: Text(
-                                          'Kiểm tra tình trạng',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: _width / 18),
-                                        ),
-                                      ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
+                                  ),
                         const SizedBox(height: 35),
                         _title('Thông tin đánh giá'),
                         const SizedBox(height: 25),
@@ -1057,7 +1283,12 @@ class _CustomCountNumberState extends State<CustomCountNumber> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Số lượng người lớn:'),
+              Text(
+                'Số lượng người lớn:',
+                style: TextStyle(
+                  fontSize: _width / 18,
+                ),
+              ),
               const SizedBox(width: 25),
               Container(
                 child: Row(
@@ -1125,7 +1356,12 @@ class _CustomCountNumberState extends State<CustomCountNumber> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Số lượng trẻ em:'),
+              Text(
+                'Số lượng trẻ em:',
+                style: TextStyle(
+                  fontSize: _width / 18,
+                ),
+              ),
               const SizedBox(width: 25),
               Container(
                 child: Row(
@@ -1190,74 +1426,74 @@ class _CustomCountNumberState extends State<CustomCountNumber> {
             ],
           ),
           const SizedBox(height: 20),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     const Text('Số lượng phòng:'),
-          //     const SizedBox(width: 25),
-          //     Container(
-          //       child: Row(
-          //         children: [
-          //           GestureDetector(
-          //             onTap: () {
-          //               setState(() {
-          //                 if (widget.soLuongPhong > 1) {
-          //                   widget.soLuongPhong--;
-          //                 }
-          //               });
-          //             },
-          //             child: Container(
-          //               alignment: Alignment.center,
-          //               decoration: BoxDecoration(
-          //                 color: Colors.amber,
-          //                 borderRadius: BorderRadius.horizontal(
-          //                   left: Radius.circular(50),
-          //                 ),
-          //               ),
-          //               child: Icon(
-          //                 Icons.remove,
-          //                 size: 20,
-          //                 color: Colors.white,
-          //               ),
-          //             ),
-          //           ),
-          //           const SizedBox(width: 20),
-          //           Container(
-          //             alignment: Alignment.center,
-          //             width: 20,
-          //             child: Text(
-          //               '${widget.soLuongPhong}',
-          //             ),
-          //           ),
-          //           const SizedBox(width: 20),
-          //           GestureDetector(
-          //             onTap: () {
-          //               setState(() {
-          //                 if (widget.soLuongPhong < 10) {
-          //                   widget.soLuongPhong++;
-          //                 }
-          //               });
-          //             },
-          //             child: Container(
-          //               alignment: Alignment.center,
-          //               decoration: BoxDecoration(
-          //                 color: Colors.amber,
-          //                 borderRadius: BorderRadius.horizontal(
-          //                     right: Radius.circular(50)),
-          //               ),
-          //               child: Icon(
-          //                 CupertinoIcons.plus,
-          //                 size: 20,
-          //                 color: Colors.white,
-          //               ),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Số lượng phòng:'),
+              const SizedBox(width: 25),
+              Container(
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.soLuongPhong > 1) {
+                            widget.soLuongPhong--;
+                          }
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(50),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.remove,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Container(
+                      alignment: Alignment.center,
+                      width: 20,
+                      child: Text(
+                        '${widget.soLuongPhong}',
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.soLuongPhong < 10) {
+                            widget.soLuongPhong++;
+                          }
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.horizontal(
+                              right: Radius.circular(50)),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.plus,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           GestureDetector(
             onTap: () {
               CountInfoRoom countInfoRoom = CountInfoRoom();

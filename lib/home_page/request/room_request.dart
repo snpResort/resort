@@ -13,12 +13,11 @@ Future<List<Room>?> roomRequest() async {
 
   Map<String, String> headers = {"Content-type": "application/json"};
 
-  Response response = await get(
-    Uri.parse('$kUrlServer$path'),
-    headers: headers,
-  );
-
   try {
+    Response response = await get(
+      Uri.parse('$kUrlServer$path'),
+      headers: headers,
+    );
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body);
       List<Room> rooms = [];
@@ -75,6 +74,8 @@ Future<List<Room>?> roomRequest() async {
       return rooms;
     }
   } catch (e) {
+    print('=================== e ${e}');
+
     return null;
   }
 }

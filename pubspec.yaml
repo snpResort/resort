@@ -51,7 +51,14 @@ dependencies:
   numberpicker: ^2.1.1
   table_calendar: ^3.0.8
 
+
+flutter_icons:
+  android: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#000000"
+
 dev_dependencies:
+  flutter_launcher_icons: ^0.11.0
   flutter_test:
     sdk: flutter
 

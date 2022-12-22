@@ -11,7 +11,7 @@ Future<bool> bookedRequest(
     required double gia,
     required DateTime ngayDat,
     required DateTime ngayTra,
-    required int idPhong}) async {
+    required List<int> idPhong}) async {
   final String path = '/room/bookRoom';
 
   DateFormat _dateFormat = DateFormat('yyyy-MM-dd');

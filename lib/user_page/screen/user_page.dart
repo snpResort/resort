@@ -5,8 +5,11 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
+import 'package:resort/auth/repository/db_user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/constant/app_string.dart';
+import 'package:resort/main.dart';
+import 'package:resort/user_page/screen/history_booked_page.dart';
 import 'package:resort/user_page/screen/user_info_page.dart';
 
 class UserPage extends StatefulWidget {
@@ -316,7 +319,15 @@ class _UserPageState extends State<UserPage> {
           _buttonControl(
             title: 'Lịch sử',
             icon: CupertinoIcons.timer,
-            onClick: () {},
+            onClick: () {
+              print('click lịch sử');
+              PersistentNavBarNavigator.pushNewScreen(
+                context,
+                screen: const HistoryBooked(),
+                withNavBar: true, // OPTIONAL VALUE. True by default.
+                pageTransitionAnimation: PageTransitionAnimation.cupertino,
+              );
+            },
           ),
         ],
       ),
@@ -324,7 +335,10 @@ class _UserPageState extends State<UserPage> {
 
     Widget _buttonSignout = Container(
       child: ListTile(
-        onLongPress: () {},
+        onTap: () {
+          Provider.of<PUser>(context, listen: false).signout();
+          RestartWidget.restartApp(context);
+        },
         title: Align(
           child: Text(
             'Đăng xuất',

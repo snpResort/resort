@@ -13,10 +13,12 @@ import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/request/room_request.dart';
 import 'package:resort/home_page/screen/room_info_page.dart';
+import 'package:resort/home_page/screen/rooms_info.dart';
 import 'package:resort/widgets/carouse_slider.dart';
 import 'package:resort/widgets/custom_lp.dart';
 import 'package:resort/widgets/gradient_mask.dart';
 import 'package:resort/widgets/star_clipper.dart';
+import 'package:resort/widgets/wrong_alert.dart';
 
 final oCcy = new NumberFormat("#.#");
 
@@ -47,9 +49,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     roomRequest().then((value) {
+      print('==================== vale: $value');
       setState(() {
         isLoad = false;
-        rooms = value!;
+        try {
+          rooms = value!;
+        } catch (e) {
+          print('------------e: $e');
+        }
       });
     });
 
@@ -80,270 +87,280 @@ class _HomePageState extends State<HomePage> {
             ? Center(
                 child: CircularProgressIndicator(),
               )
-            : Scaffold(
-                backgroundColor: Colors.transparent,
-                body: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: SafeArea(
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            : rooms.length == 0
+                ? Builder(
+                    builder: (context) {
+                      ackAlert(context, 'Có lỗi đã xảy ra vui lòng thử lại');
+
+                      return const SizedBox();
+                    },
+                  )
+                : Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: SafeArea(
+                        child: Column(
                           children: [
-                            Container(
-                              margin: EdgeInsets.all(10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Image.asset(
-                                    kLogoApp,
-                                    height: 95,
-                                    width: 95,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  if (user != null)
-                                    Text(
-                                      'Xin chào, ${user.hoTen}',
-                                      style: TextStyle(
-                                        fontSize: _width / 15,
-                                        color: Colors.white,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.all(10),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        kLogoApp,
+                                        height: 95,
+                                        width: 95,
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            if (!Provider.of<PUser>(context).isLogin)
-                              IconButton(
-                                onPressed: () {
-                                  PersistentNavBarNavigator
-                                      .pushNewScreenWithRouteSettings(
-                                    context,
-                                    screen: ScreenLogin(),
-                                    withNavBar: false,
-                                    settings:
-                                        RouteSettings(name: ScreenLogin.id),
-                                  );
-                                },
-                                icon: Icon(
-                                  CupertinoIcons.person_crop_circle,
-                                  size: 40,
-                                  color: Colors.white,
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 30),
-                        CarouseSlider(banners: banners),
-                        const SizedBox(height: 40),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: Colors.white,
-                          ),
-                          width: _width / 1.2,
-                          padding: EdgeInsets.all(15),
-                          child: Column(
-                            children: [
-                              TextField(
-                                decoration: InputDecoration(
-                                  labelText: 'Giá',
-                                  border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(Icons.search),
-                                ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(width: .6),
-                                  borderRadius: BorderRadius.circular(7),
-                                ),
-                                margin: EdgeInsets.symmetric(vertical: 2.5),
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_month_outlined,
-                                            size: _width / 13,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Ngày đến',
-                                                style: TextStyle(
-                                                  fontSize: _width / 25,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Từ ngày',
-                                                style: TextStyle(
-                                                  fontSize: _width / 20,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_month_outlined,
-                                            size: _width / 13,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Ngày đi',
-                                                style: TextStyle(
-                                                  fontSize: _width / 25,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Đến ngày',
-                                                style: TextStyle(
-                                                  fontSize: _width / 20,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(width: .6),
-                                  borderRadius: BorderRadius.circular(7),
-                                ),
-                                margin: EdgeInsets.symmetric(vertical: 2.5),
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      CupertinoIcons.person_3,
-                                      size: _width / 13,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
+                                      const SizedBox(height: 10),
+                                      if (user != null)
                                         Text(
-                                          'Khách Số lượng phòng',
+                                          'Xin chào, ${user.hoTen}',
                                           style: TextStyle(
-                                            fontSize: _width / 25,
+                                            fontSize: _width / 15,
+                                            color: Colors.white,
                                           ),
                                         ),
-                                        Text(
-                                          '1 người, 1 phòng',
-                                          style: TextStyle(
-                                            fontSize: _width / 20,
+                                    ],
+                                  ),
+                                ),
+                                if (!Provider.of<PUser>(context).isLogin)
+                                  IconButton(
+                                    onPressed: () {
+                                      PersistentNavBarNavigator
+                                          .pushNewScreenWithRouteSettings(
+                                        context,
+                                        screen: ScreenLogin(),
+                                        withNavBar: false,
+                                        settings:
+                                            RouteSettings(name: ScreenLogin.id),
+                                      );
+                                    },
+                                    icon: Icon(
+                                      CupertinoIcons.person_crop_circle,
+                                      size: 40,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+                            CarouseSlider(banners: banners),
+                            const SizedBox(height: 40),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.white,
+                              ),
+                              width: _width / 1.2,
+                              padding: EdgeInsets.all(15),
+                              child: Column(
+                                children: [
+                                  TextField(
+                                    decoration: InputDecoration(
+                                      labelText: 'Giá',
+                                      border: const OutlineInputBorder(),
+                                      prefixIcon: const Icon(Icons.search),
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(width: .6),
+                                      borderRadius: BorderRadius.circular(7),
+                                    ),
+                                    margin: EdgeInsets.symmetric(vertical: 2.5),
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.calendar_month_outlined,
+                                                size: _width / 13,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Ngày đến',
+                                                    style: TextStyle(
+                                                      fontSize: _width / 25,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Từ ngày',
+                                                    style: TextStyle(
+                                                      fontSize: _width / 20,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.calendar_month_outlined,
+                                                size: _width / 13,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Ngày đi',
+                                                    style: TextStyle(
+                                                      fontSize: _width / 25,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Đến ngày',
+                                                    style: TextStyle(
+                                                      fontSize: _width / 20,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
-                                    )
-                                  ],
-                                ),
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(width: .6),
+                                      borderRadius: BorderRadius.circular(7),
+                                    ),
+                                    margin: EdgeInsets.symmetric(vertical: 2.5),
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons.person_3,
+                                          size: _width / 13,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Khách Số lượng phòng',
+                                              style: TextStyle(
+                                                fontSize: _width / 25,
+                                              ),
+                                            ),
+                                            Text(
+                                              '1 người, 1 phòng',
+                                              style: TextStyle(
+                                                fontSize: _width / 20,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.blue.shade300,
+                                    ),
+                                    margin: EdgeInsets.symmetric(vertical: 2.5),
+                                    padding: EdgeInsets.all(10),
+                                    child: Text(
+                                      'Tìm kiếm',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: _width / 18),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Container(
-                                width: double.infinity,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.blue.shade300,
-                                ),
-                                margin: EdgeInsets.symmetric(vertical: 2.5),
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  'Tìm kiếm',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: _width / 18),
-                                ),
+                            ),
+                            const SizedBox(height: 40),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Yêu thích',
+                                    style: TextStyle(
+                                        fontSize: _width / 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Yêu thích',
-                                style: TextStyle(
-                                    fontSize: _width / 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 185,
-                          width: _width,
-                          child: ListView.builder(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            itemCount: 3,
-                            physics: const BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (context, index) {
-                              return GestureDetector(
-                                onTap: () {
-                                  Provider.of<PRoom>(context, listen: false)
-                                      .setRoom(favRoom.elementAt(index));
-                                  PersistentNavBarNavigator.pushNewScreen(
-                                    context,
-                                    screen: const RoomInfoPage(),
-                                    withNavBar:
-                                        true, // OPTIONAL VALUE. True by default.
-                                    pageTransitionAnimation:
-                                        PageTransitionAnimation.cupertino,
+                            ),
+                            SizedBox(
+                              height: 185,
+                              width: _width,
+                              child: ListView.builder(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                itemCount: 3,
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Provider.of<PRoom>(context, listen: false)
+                                          .setRoom(favRoom.elementAt(index));
+                                      PersistentNavBarNavigator.pushNewScreen(
+                                        context,
+                                        screen: const RoomInfoPage(),
+                                        withNavBar:
+                                            true, // OPTIONAL VALUE. True by default.
+                                        pageTransitionAnimation:
+                                            PageTransitionAnimation.cupertino,
+                                      );
+                                    },
+                                    child: favorite_room(
+                                      width: _width,
+                                      index: index,
+                                      room: favRoom.elementAt(index),
+                                    ),
                                   );
                                 },
-                                child: favorite_room(
-                                  width: _width,
-                                  index: index,
-                                  room: favRoom.elementAt(index),
-                                ),
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                            const SizedBox(height: 35),
+                            _loaiPhong(
+                              width: _width,
+                              rooms: rooms,
+                            ),
+                            const SizedBox(height: 60),
+                          ],
                         ),
-                        const SizedBox(height: 35),
-                        _loaiPhong(
-                          width: _width,
-                          rooms: rooms,
-                        ),
-                        const SizedBox(height: 60),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
       ],
     );
   }
@@ -456,7 +473,15 @@ class _loaiPhong extends StatelessWidget {
                     color: Colors.white),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Provider.of<PRoom>(context, listen: false).setRooms(rooms);
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: const RoomsInfo(),
+                    withNavBar: true, // OPTIONAL VALUE. True by default.
+                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                  );
+                },
                 child: Text(
                   'Xem thêm',
                   style: TextStyle(

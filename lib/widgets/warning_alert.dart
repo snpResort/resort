@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:resort/constant/app_colors.dart';
 import 'package:resort/constant/app_numbers.dart';
 
-void ackAlert(context, String a) {
+void warningAlert(context, String a, {Function? onCancel, Function? onOK}) {
   Future.delayed(Duration(milliseconds: 0), () {
     if (a != null || a.isNotEmpty) {
       return showDialog<void>(
@@ -23,9 +24,9 @@ void ackAlert(context, String a) {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.error_outline_rounded,
+                      Icons.warning_amber_rounded,
                       size: 50,
-                      color: Colors.red,
+                      color: Colors.yellow.shade700,
                     ),
                     SizedBox(
                       height: 10,
@@ -43,9 +44,23 @@ void ackAlert(context, String a) {
                       children: [
                         TextButton(
                           child: Text(
+                            'Trở lại',
+                          ),
+                          onPressed: () {
+                            if (onCancel != null) {
+                              onCancel();
+                            }
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        TextButton(
+                          child: Text(
                             'OK',
                           ),
                           onPressed: () {
+                            if (onOK != null) {
+                              onOK();
+                            }
                             Navigator.of(context).pop();
                           },
                         ),
