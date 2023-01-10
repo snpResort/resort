@@ -121,11 +121,10 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-PersistentTabController controllerPersistent =
-    PersistentTabController(initialIndex: 0);
+PersistentTabController controllerPersistent = PersistentTabController(initialIndex: 0);
+bool isUpdateBottomBar = false;
 
 class _AppState extends State<App> {
-  final _isLogin = false;
 
   @override
   void didChangeDependencies() {
@@ -137,20 +136,23 @@ class _AppState extends State<App> {
     }
     Provider.of<PUser>(context, listen: false);
     Provider.of<PRoom>(context, listen: false);
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> _buildScreens(context) {
+    if (isUpdateBottomBar) {
+      controllerPersistent = PersistentTabController(initialIndex: 0);
+      isUpdateBottomBar = false;
+    }
+  }
+    List<Widget> _buildScreens() {
       final tabPage = <Widget>[
         const HomePage(),
         const ExplorePage(),
         const CartPage(),
         const AboutPage(),
       ];
-      if (Provider.of<PUser>(context, listen: true).isLogin) {
+      if (DBUser.hasLogin()) {
         tabPage.add(const UserPage());
       }
+      print('\n=============================== tabPage length: ${tabPage.length} ');
       return tabPage;
     }
 
@@ -214,7 +216,7 @@ class _AppState extends State<App> {
           inactiveColorPrimary: CupertinoColors.systemGrey,
         ),
       ];
-      if (Provider.of<PUser>(context, listen: true).isLogin) {
+      if (DBUser.hasLogin()) {
         listButton.add(
           PersistentBottomNavBarItem(
             icon: Icon(CupertinoIcons.person),
@@ -232,14 +234,22 @@ class _AppState extends State<App> {
           ),
         );
       }
+      print('===================== listButton length: ${listButton.length}');
       return listButton;
     }
+  @override
+  Widget build(BuildContext context) {
+
+    
+
+    print('----------------------- reset: ${_navBarsItems(context).length} ');
 
     return PersistentTabView(
       context,
       controller: controllerPersistent,
-      screens: _buildScreens(context),
+      screens: _buildScreens(),
       items: _navBarsItems(context),
+
       resizeToAvoidBottomInset: true,
       navBarHeight: MediaQuery.of(context).viewInsets.bottom > 0
           ? 0.0

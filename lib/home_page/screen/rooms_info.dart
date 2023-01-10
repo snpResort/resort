@@ -11,6 +11,7 @@ import 'package:resort/home_page/request/room_request.dart';
 import 'package:resort/home_page/screen/home_page.dart';
 import 'package:resort/home_page/screen/room_info_page.dart';
 import 'package:resort/widgets/custom_lp.dart';
+import 'package:resort/widgets/loading_widget.dart';
 
 class RoomsInfo extends StatefulWidget {
   const RoomsInfo({super.key});
@@ -22,12 +23,25 @@ class RoomsInfo extends StatefulWidget {
 class _RoomsInfoState extends State<RoomsInfo> {
   List<Room> rooms = [];
   bool isLoad = false;
-
+  
   @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    rooms = Provider.of<PRoom>(context).rooms!;
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    roomRequest().then((value) {
+      print('==================== vale: $value');
+      setState(() {
+        isLoad = false;
+        try {
+          rooms = value!;
+        } catch (e) {
+          print('------------e: $e');
+        }
+      });
+    });
+
+    isLoad = true;
   }
 
   @override
@@ -45,7 +59,7 @@ class _RoomsInfoState extends State<RoomsInfo> {
         ),
         isLoad
             ? Center(
-                child: CircularProgressIndicator(),
+                child: LoadingWidget(),
               )
             : Scaffold(
                 appBar: AppBar(
@@ -109,18 +123,19 @@ class _loaiPhong extends StatelessWidget {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
                   screen: const RoomInfoPage(),
-                  withNavBar: true, // OPTIONAL VALUE. True by default.
+                  withNavBar: false, // OPTIONAL VALUE. True by default.
                   pageTransitionAnimation: PageTransitionAnimation.cupertino,
                 );
               },
               child: Container(
-                margin: EdgeInsets.symmetric(vertical: 15),
-                child: customLP(
+                margin: EdgeInsets.symmetric(vertical: 18),
+                child: customLP_info(
                   width: _width,
                   isHorizontal: false,
                   title: '${rooms[index].ten}',
                   price: '${rooms[index].gia}',
                   amoutCmt: sum_cmt(rooms[index].rates),
+                  amountPeople: rooms[index].soNgLon + rooms[index].soTreEm,
                   rateStar: '${oCcy.format(avg_rate(rooms[index].rates))}',
                   urlImage: '${rooms[index].images[0]}',
                 ),

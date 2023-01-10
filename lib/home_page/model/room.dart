@@ -1,4 +1,6 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:hive_flutter/adapters.dart';
+
 import 'package:resort/home_page/model/date_book.dart';
 import 'package:resort/home_page/model/rate.dart';
 
@@ -16,6 +18,11 @@ class Room {
   late List<String> infos;
   late List<DateBook> ngayDaDat;
   Room();
+
+  @override
+  String toString() {
+    return ten;
+  }
 }
 
 class RoomInfo {

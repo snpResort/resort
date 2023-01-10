@@ -6,6 +6,7 @@ import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/auth/request/login_request.dart';
 import 'package:resort/auth/screen/register_page.dart';
 import 'package:resort/constant/app_style.dart';
+import 'package:resort/main.dart';
 import 'package:resort/widgets/logo.dart';
 import 'package:resort/widgets/rounded_button.dart';
 import 'package:resort/widgets/wrong_alert.dart';

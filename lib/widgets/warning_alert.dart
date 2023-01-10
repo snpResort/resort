@@ -58,10 +58,10 @@ void warningAlert(context, String a, {Function? onCancel, Function? onOK}) {
                             'OK',
                           ),
                           onPressed: () {
+                            Navigator.of(context).pop();
                             if (onOK != null) {
                               onOK();
                             }
-                            Navigator.of(context).pop();
                           },
                         ),
                       ],

@@ -17,8 +17,18 @@ Future<bool> bookedRequest(
   DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
 
   Map<String, String> headers = {"Content-type": "application/json"};
-  String json =
-      '{"username": "$username", "soLuongNguoiTH": "$soLuongNguoiTH", "soLuongTreEm": "$soLuongTreEm", "gia": "$gia", "ngayDat": "${_dateFormat.format(ngayDat)}", "ngayTra": "${_dateFormat.format(ngayTra)}", "idPhong": "$idPhong"}';
+  String json = jsonEncode({
+    "username": username,
+    "soLuongNguoiTH": "$soLuongNguoiTH",
+    "soLuongTreEm": "$soLuongTreEm",
+    "gia": "$gia",
+    "ngayDat": _dateFormat.format(ngayDat),
+    "ngayTra": _dateFormat.format(ngayTra),
+    "idPhong": idPhong
+  });
+
+  print(json);
+  // return true;
 
   Response response = await post(
     Uri.parse('$kUrlServer$path'),

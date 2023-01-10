@@ -8,20 +8,23 @@ import 'package:provider/provider.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/auth/screen/login_page.dart';
 import 'package:resort/constant/app_string.dart';
+import 'package:resort/home_page/model/date_book.dart';
 import 'package:resort/home_page/model/rate.dart';
 import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/request/room_request.dart';
 import 'package:resort/home_page/screen/room_info_page.dart';
 import 'package:resort/home_page/screen/rooms_info.dart';
+import 'package:resort/widgets/calendar_custom.dart';
 import 'package:resort/widgets/carouse_slider.dart';
 import 'package:resort/widgets/custom_lp.dart';
 import 'package:resort/widgets/gradient_mask.dart';
+import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/star_clipper.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
-final oCcy = new NumberFormat("#.#");
 
+final oCcy = new NumberFormat("#.#");
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -42,6 +45,22 @@ class _HomePageState extends State<HomePage> {
 
   late bool isLoad;
   List<Room> rooms = [];
+
+  DateTime _ngayDen = DateTime.now();
+  DateTime _ngayDi = DateTime.now().add(Duration(days: 1));
+
+  TextEditingController _priceController = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    try {
+      rooms = Provider.of<PRoom>(context).rooms!;
+    } catch (e) {
+      print('========= error: ${e}');
+    }
+  }
 
   @override
   void initState() {
@@ -85,7 +104,7 @@ class _HomePageState extends State<HomePage> {
         ),
         isLoad
             ? Center(
-                child: CircularProgressIndicator(),
+                child: LoadingWidget(),
               )
             : rooms.length == 0
                 ? Builder(
@@ -131,21 +150,24 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                                 if (!Provider.of<PUser>(context).isLogin)
-                                  IconButton(
-                                    onPressed: () {
-                                      PersistentNavBarNavigator
-                                          .pushNewScreenWithRouteSettings(
-                                        context,
-                                        screen: ScreenLogin(),
-                                        withNavBar: false,
-                                        settings:
-                                            RouteSettings(name: ScreenLogin.id),
-                                      );
-                                    },
-                                    icon: Icon(
-                                      CupertinoIcons.person_crop_circle,
-                                      size: 40,
-                                      color: Colors.white,
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        PersistentNavBarNavigator
+                                            .pushNewScreenWithRouteSettings(
+                                          context,
+                                          screen: ScreenLogin(),
+                                          withNavBar: false,
+                                          settings: RouteSettings(
+                                              name: ScreenLogin.id),
+                                        );
+                                      },
+                                      icon: Icon(
+                                        CupertinoIcons.person_crop_circle,
+                                        size: 40,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                               ],
@@ -163,86 +185,119 @@ class _HomePageState extends State<HomePage> {
                               child: Column(
                                 children: [
                                   TextField(
+                                    controller: _priceController,
+                                    keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
                                       labelText: 'Giá',
                                       border: const OutlineInputBorder(),
                                       prefixIcon: const Icon(Icons.search),
                                     ),
+                                    style: TextStyle(fontSize: _width / 21),
+                                    onChanged: (value) {
+                                      value = '${formNum(value.replaceAll(',', ''),)}';
+                                      _priceController.value = TextEditingValue(
+                                        text: value,
+                                        selection: TextSelection.collapsed(
+                                          offset: value.length,
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(width: .6),
-                                      borderRadius: BorderRadius.circular(7),
-                                    ),
-                                    margin: EdgeInsets.symmetric(vertical: 2.5),
-                                    padding: EdgeInsets.all(10),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.calendar_month_outlined,
-                                                size: _width / 13,
-                                              ),
-                                              const SizedBox(width: 10),
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'Ngày đến',
-                                                    style: TextStyle(
-                                                      fontSize: _width / 25,
+                                  GestureDetector(
+                                    onTap: () {
+                                      CalendarCustom(
+                                        context,
+                                        _ngayDen,
+                                        _ngayDi,
+                                        [],
+                                        true
+                                      ).then((value) {
+                                        DateBook dateBook = Provider.of<PRoom>(
+                                                context,
+                                                listen: false)
+                                            .dateBook!;
+                                        setState(() {
+                                          _ngayDi = dateBook.timeCheckout!;
+                                          _ngayDen = dateBook.timeCheckin!;
+                                        });
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(width: .6),
+                                        borderRadius: BorderRadius.circular(7),
+                                      ),
+                                      margin:
+                                          EdgeInsets.symmetric(vertical: 2.5),
+                                      padding: EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_month_outlined,
+                                                  size: _width / 13,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Ngày đến',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 25,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Text(
-                                                    'Từ ngày',
-                                                    style: TextStyle(
-                                                      fontSize: _width / 20,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ],
+                                                    Text(
+                                                      '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 21,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.calendar_month_outlined,
-                                                size: _width / 13,
-                                              ),
-                                              const SizedBox(width: 10),
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'Ngày đi',
-                                                    style: TextStyle(
-                                                      fontSize: _width / 25,
+                                          Container(
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_month_outlined,
+                                                  size: _width / 13,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Ngày đi',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 25,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Text(
-                                                    'Đến ngày',
-                                                    style: TextStyle(
-                                                      fontSize: _width / 20,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ],
+                                                    Text(
+                                                      '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
+                                                      style: TextStyle(
+                                                        fontSize: _width / 21,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -274,7 +329,7 @@ class _HomePageState extends State<HomePage> {
                                             Text(
                                               '1 người, 1 phòng',
                                               style: TextStyle(
-                                                fontSize: _width / 20,
+                                                fontSize: _width / 21,
                                               ),
                                             ),
                                           ],
@@ -282,20 +337,62 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                   ),
-                                  Container(
-                                    width: double.infinity,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.blue.shade300,
-                                    ),
-                                    margin: EdgeInsets.symmetric(vertical: 2.5),
-                                    padding: EdgeInsets.all(10),
-                                    child: Text(
-                                      'Tìm kiếm',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: _width / 18),
+                                  GestureDetector(
+                                    onTap: () {
+                                      // todo: handle search room
+                                      print('search ${rooms.length}');
+                                     
+                                      for (var room in rooms) {
+                                        bool flagCheckPrice = room.gia <= int.parse(_priceController.text.replaceAll(',', ''));
+                                        //! ===========================================
+                                        List<String> roomBooked = [];
+                                        for (DateTime d = _ngayDen;
+                                            d.compareTo(_ngayDi) <= 0;
+                                            d = d.add(Duration(days: 1))) {
+                                          roomBooked.addAll(room
+                                              .ngayDaDat
+                                              .where((info) =>
+                                                  d.compareTo(info
+                                                          .timeCheckin!) >=
+                                                      0 &&
+                                                  d.compareTo(info
+                                                          .timeCheckout!) <=
+                                                      0)
+                                              .map((e) => e.room)
+                                              .toSet()
+                                              .toList());
+                                        }
+                                        roomBooked = roomBooked.toSet().toList();
+
+                                        final phongConTrong = room.rooms
+                                            .where((_room) => !roomBooked
+                                                .contains(_room.tenPhong))
+                                            .toList();
+
+                                        print('phongConTrong cua p ${room.ten}: ${phongConTrong.length}');
+
+                                        //! ===========================================
+                                        bool flagPeople = room.soNgLon == 0;
+                                        bool flagRoom = phongConTrong.length < 0;
+
+                                        // return flagCheckPrice && flagPeopleAndRoom;
+                                      }//);
+                                    },
+                                    child: Container(
+                                      width: double.infinity,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.blue.shade300,
+                                      ),
+                                      margin: EdgeInsets.symmetric(vertical: 2.5),
+                                      padding: EdgeInsets.all(10),
+                                      child: Text(
+                                        'Tìm kiếm',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: _width / 18),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -319,6 +416,7 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 10),
                             SizedBox(
                               height: 185,
                               width: _width,
@@ -335,8 +433,7 @@ class _HomePageState extends State<HomePage> {
                                       PersistentNavBarNavigator.pushNewScreen(
                                         context,
                                         screen: const RoomInfoPage(),
-                                        withNavBar:
-                                            true, // OPTIONAL VALUE. True by default.
+                                        withNavBar: false, // OPTIONAL VALUE. True by default.
                                         pageTransitionAnimation:
                                             PageTransitionAnimation.cupertino,
                                       );
@@ -362,6 +459,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
       ],
+    );
+  }
+
+  String formNum(String s) {
+    return NumberFormat.decimalPattern().format(
+      int.parse(s),
     );
   }
 }
@@ -478,7 +581,7 @@ class _loaiPhong extends StatelessWidget {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
                     screen: const RoomsInfo(),
-                    withNavBar: true, // OPTIONAL VALUE. True by default.
+                    withNavBar: false, // OPTIONAL VALUE. True by default.
                     pageTransitionAnimation: PageTransitionAnimation.cupertino,
                   );
                 },

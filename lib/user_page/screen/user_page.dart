@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/repository/db_user.dart';
@@ -28,6 +29,25 @@ class _UserPageState extends State<UserPage> {
     final _user = isLogin ? Provider.of<PUser>(context).user : null;
 
     final _width = MediaQuery.of(context).size.width;
+    final _height = MediaQuery.of(context).size.height;
+
+    final ImagePicker _picker = ImagePicker();
+    XFile? _imageFile;
+
+    void _onImageButtonPressed(ImageSource source, {BuildContext? context }) async {
+      try {
+        final pickedFile = await _picker.pickImage(
+          source: source,
+        );
+        setState(() {
+          _imageFile = pickedFile;
+        });
+      } catch (e) {
+        setState(() {
+        });
+      }
+      
+    }
 
     Widget _dividerControl = const Padding(
       padding: EdgeInsets.symmetric(horizontal: 15),
@@ -111,7 +131,40 @@ class _UserPageState extends State<UserPage> {
                       ],
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        // Todo: select image to set avatar
+                        showModalBottomSheet<int>(
+                          isDismissible: false,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Container(
+                              height: _height / 3,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      _onImageButtonPressed(ImageSource.camera, context: context);
+                                    }, 
+                                    icon: Icon(Icons.camera, size: _width / 8,),
+                                    label: Text('Camera', style: TextStyle(fontSize: _width / 18),),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      _onImageButtonPressed(ImageSource.gallery, context: context);
+                                    }, 
+                                    icon: Icon(Icons.image_outlined, size: _width / 8,),
+                                    label: Text('Gellary', style: TextStyle(fontSize: _width / 18),),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
                       child: Container(
                         height: _width / 12,
                         width: _width / 12,
@@ -186,7 +239,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                     backgroundColor: MaterialStateProperty.all(Colors.orange),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Nâng hạng',
                     style: TextStyle(
                       color: Colors.white,
@@ -337,6 +390,7 @@ class _UserPageState extends State<UserPage> {
       child: ListTile(
         onTap: () {
           Provider.of<PUser>(context, listen: false).signout();
+          isUpdateBottomBar = true;
           RestartWidget.restartApp(context);
         },
         title: Align(

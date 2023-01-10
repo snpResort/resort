@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:resort/constant/app_colors.dart';
 import 'package:resort/constant/app_numbers.dart';
 
-void succesAlert(context, String a) {
-  Future.delayed(Duration(milliseconds: 0), () {
+Future<void> succesAlert(context, String a) async {
+  await Future.delayed(Duration(milliseconds: 0), () {
     if (a != null || a.isNotEmpty) {
       return showDialog<void>(
         barrierDismissible: false,

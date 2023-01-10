@@ -9,7 +9,7 @@ import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-Future CalendarCustom(context, rangeStart, rangeEnd, List<DateBook> ngayDaDat) {
+Future CalendarCustom(context, rangeStart, rangeEnd, List<DateBook> ngayDaDat, [bool isSearch = false]) {
   return showDialog<void>(
     barrierDismissible: false,
     context: context,
@@ -52,23 +52,27 @@ Future CalendarCustom(context, rangeStart, rangeEnd, List<DateBook> ngayDaDat) {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Row(
+                  isSearch ? const SizedBox() : Column(
                     children: [
-                      Text(
-                        '_',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          color: Colors.red.shade400,
-                          fontSize: _width / 22,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Phòng đã được đặt',
-                        style: TextStyle(
-                          fontSize: _width / 22,
-                        ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Text(
+                            '_',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w300,
+                              color: Colors.red.shade400,
+                              fontSize: _width / 22,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Phòng đã được đặt',
+                            style: TextStyle(
+                              fontSize: _width / 22,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -122,7 +126,7 @@ class _calendarState extends State<_calendar> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
       .toggledOn; // Can be toggled on/off by longpressing a date
-  DateTime _focusedDay = DateTime.now().subtract(Duration(days: 2));
+  DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
   @override
@@ -144,6 +148,7 @@ class _calendarState extends State<_calendar> {
         shouldFillViewport: true,
         daysOfWeekHeight: 30,
         focusedDay: _focusedDay,
+        currentDay: DateTime.now(),
         firstDay: DateTime.utc(2010, 10, 16),
         lastDay: DateTime.utc(2030, 3, 14),
         selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
@@ -220,12 +225,12 @@ class _calendarState extends State<_calendar> {
               ),
             );
 
-            Room room = Provider.of<PRoom>(context).room!;
+            Room? room = Provider.of<PRoom>(context).room;
 
             if (day.compareTo(DateTime(
                     currentDay.year, currentDay.month, currentDay.day)) >=
                 0) {
-              if (widget.ngayDaDat
+              if (room != null && widget.ngayDaDat
                       .where((date) =>
                           day.compareTo(date.timeCheckin!) >= 0 &&
                           day.compareTo(date.timeCheckout!) <= 0)

@@ -4,14 +4,20 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
+import 'package:resort/auth/repository/db_user.dart';
 import 'package:resort/auth/repository/p_user.dart';
+import 'package:resort/auth/screen/login_page.dart';
 import 'package:resort/cart_page/request/book_room.dart';
 import 'package:resort/cart_page/request/sale_request.dart';
 import 'package:resort/constant/app_string.dart';
 import 'package:resort/home_page/repository/p_room.dart';
+import 'package:resort/main.dart';
+import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/success_alert.dart';
+import 'package:resort/widgets/warning_alert.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
 class CartPage extends StatefulWidget {
@@ -23,16 +29,54 @@ class CartPage extends StatefulWidget {
   State<CartPage> createState() => _CartPageState();
 }
 
-class _CartPageState extends State<CartPage> {
+class _CartPageState extends State<CartPage>
+    with SingleTickerProviderStateMixin {
   TextEditingController _idSaleController = TextEditingController();
+  ScrollController _scrollController = ScrollController();
   bool isSale = false;
   double giaSale = 0;
+  double sale = 0;
   double total = 0;
+  int sumInvite = 0;
   bool _isLoad = false;
   bool _isLoadThanhToan = false;
 
   PRoom? pRoom;
   User? user;
+  final oCcyMoney = NumberFormat("#,##0");
+
+  late AnimationController _controller;
+  late Animation _animation;
+
+  FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _animation = Tween(begin: 10.0, end: 200.0).animate(_controller)
+      ..addListener(() {
+        setState(() {});
+      });
+
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -40,19 +84,49 @@ class _CartPageState extends State<CartPage> {
     super.didChangeDependencies();
     pRoom = Provider.of<PRoom>(context, listen: true);
     user = Provider.of<PUser>(context).user;
+
+    sumInvite = pRoom!.infoBook.isNotEmpty 
+        ? pRoom!.infoBook.first.ngayDat.soNgayO()
+        : 0;
+
+    total = pRoom!.infoBook.isNotEmpty
+        ? pRoom!.infoBook
+            .map((e) => e.gia)
+            .reduce((value, element) => value + element)
+        : 0;
+
+    // isSale = pRoom!.infoBook.isEmpty;
+    giaSale = total - total * sale;
+
+    // if (pRoom!.infoBook.isEmpty) {
+    //   _idSaleController.clear();
+
+    //   print('empty ===================');
+    // }
+    print(
+        '========== _idSaleController = ${_idSaleController.text} ===================');
+    print(
+        '========== pRoom!.infoBook.isEmpty = ${pRoom!.infoBook.isEmpty} ===================');
   }
 
   @override
   Widget build(BuildContext context) {
-    final oCcyMoney = NumberFormat("#,##0");
     final _width = MediaQuery.of(context).size.width;
     final _heightAppBar = _width / 6.3;
     final _height = MediaQuery.of(context).size.height;
-    total = 0;
+
+    if (_focusNode.hasFocus) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn,
+      );
+    }
 
     final listRoomsBook = Expanded(
       flex: 4,
       child: SingleChildScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
@@ -74,16 +148,14 @@ class _CartPageState extends State<CartPage> {
                           itemCount: pRoom!.infoBook.length,
                           itemBuilder: (context, index) {
                             final infoBook = pRoom!.infoBook;
-                            final roomInfo = pRoom!.room;
-                            final ngayO =
-                                (infoBook[index].ngayDat.timeCheckout!.day -
-                                    infoBook[index].ngayDat.timeCheckin!.day);
-                            final gia = infoBook.isEmpty
-                                ? 0
-                                : infoBook[index].gia * ngayO;
-                            total += gia;
+
                             print('========================');
-                            print('======ngayO : $ngayO========');
+                            print('=====price: ${infoBook[index].gia}======');
+                            print(
+                                '=====checkout: ${infoBook[index].ngayDat.timeCheckout!.toString()}======');
+                            print(
+                                '=====checkin: ${infoBook[index].ngayDat.timeCheckin!.toString()}======');
+                            // print('======ngayO : $ngayO========');
 
                             return Stack(
                               alignment: Alignment.topRight,
@@ -148,7 +220,7 @@ class _CartPageState extends State<CartPage> {
                                                         ),
                                                       ),
                                                       Text(
-                                                        '${DateFormat('dd/MM/yyyy').format(infoBook[0].ngayDat.timeCheckin!)}',
+                                                        '${DateFormat('dd/MM/yyyy').format(infoBook[index].ngayDat.timeCheckin!)}',
                                                         style: TextStyle(
                                                           fontSize: _width / 20,
                                                         ),
@@ -181,7 +253,7 @@ class _CartPageState extends State<CartPage> {
                                                         ),
                                                       ),
                                                       Text(
-                                                        '${DateFormat('dd/MM/yyyy').format(infoBook[0].ngayDat.timeCheckout!)}',
+                                                        '${DateFormat('dd/MM/yyyy').format(infoBook[index].ngayDat.timeCheckout!)}',
                                                         style: TextStyle(
                                                           fontSize: _width / 20,
                                                         ),
@@ -224,7 +296,7 @@ class _CartPageState extends State<CartPage> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  '${infoBook[0].countInfoRoom.soluongNguoiLon + infoBook[0].countInfoRoom.soLuongTreEm} người, ${infoBook[0].countInfoRoom.soLuongPhong} phòng',
+                                                  '${infoBook[index].countInfoRoom.soluongNguoiLon + infoBook[index].countInfoRoom.soLuongTreEm} người, ${infoBook[index].countInfoRoom.soLuongPhong} phòng',
                                                   style: TextStyle(
                                                     fontSize: _width / 20,
                                                   ),
@@ -247,7 +319,7 @@ class _CartPageState extends State<CartPage> {
                                             ),
                                           ),
                                           Text(
-                                            '${oCcyMoney.format(gia)} ₫',
+                                            '${oCcyMoney.format(infoBook[index].gia)} ₫',
                                             style: TextStyle(
                                               fontSize: _width / 15,
                                               fontWeight: FontWeight.w400,
@@ -263,6 +335,7 @@ class _CartPageState extends State<CartPage> {
                                   onPressed: () {
                                     Provider.of<PRoom>(context, listen: false)
                                         .deleteInfoBook(infoBook[index]);
+
                                     setState(() {});
                                   },
                                   icon: Icon(
@@ -291,10 +364,11 @@ class _CartPageState extends State<CartPage> {
                               Expanded(
                                 flex: 3,
                                 child: TextField(
+                                  focusNode: _focusNode,
                                   controller: _idSaleController,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     labelText: 'Nhập mã giảm giá',
-                                    border: const OutlineInputBorder(
+                                    border: OutlineInputBorder(
                                       borderSide: BorderSide(
                                         width: .5,
                                         color: Color(0x99000000),
@@ -317,9 +391,16 @@ class _CartPageState extends State<CartPage> {
                                           'Vui lòng nhập mã khuyến mãi',
                                         );
                                       }
+                                      if (khuyenMai == 0) {
+                                        warningAlert(
+                                          context,
+                                          'Mã giảm giá không phù hợp.\nVui lòng kiểm tra lại',
+                                        );
+                                      }
                                       setState(() {
                                         isSale = true;
-                                        giaSale = total - total * khuyenMai;
+                                        sale = khuyenMai;
+                                        giaSale = total - total * sale;
                                         if (total == giaSale) {
                                           isSale = false;
                                           giaSale = 0;
@@ -334,7 +415,8 @@ class _CartPageState extends State<CartPage> {
                                   },
                                   child: _isLoad
                                       ? Center(
-                                          child: CircularProgressIndicator(),
+                                          child: LoadingWidget(
+                                              color: Colors.orange),
                                         )
                                       : Container(
                                           height: 45,
@@ -357,7 +439,26 @@ class _CartPageState extends State<CartPage> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 20),
+                        GestureDetector(
+                          onTap: () {
+                            // Todo show select method pay
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Phương thức thanh toán',
+                                style: TextStyle(
+                                  fontSize: _width / 20,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              Icon(Icons.arrow_forward_ios),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: _animation.value),
                       ],
                     ),
                   ),
@@ -386,7 +487,7 @@ class _CartPageState extends State<CartPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tổng cộng:',
+                              'Tổng cộng ($sumInvite đêm):',
                               style: TextStyle(
                                 fontSize: _width / 19,
                               ),
@@ -425,22 +526,32 @@ class _CartPageState extends State<CartPage> {
                                 onPressed: pRoom!.infoBook.isEmpty
                                     ? null
                                     : () {
+                                        if (!DBUser.hasLogin()) {
+                                          warningAlert(context,
+                                              'Vui lòng đăng nhập để thực hiện thanh toán',
+                                              onOK: () {
+                                            PersistentNavBarNavigator
+                                                .pushNewScreenWithRouteSettings(
+                                              context,
+                                              screen: ScreenLogin(),
+                                              withNavBar: false,
+                                              settings: RouteSettings(
+                                                  name: ScreenLogin.id),
+                                            );
+                                          });
+                                          return;
+                                        }
                                         Future.wait(
-                                            pRoom!.infoBook.map((infoBook) {
-                                          return bookedRequest(
+                                          [bookedRequest(
                                               username: user!.username,
-                                              soLuongNguoiTH: infoBook
-                                                  .countInfoRoom
-                                                  .soluongNguoiLon,
-                                              soLuongTreEm: infoBook
-                                                  .countInfoRoom.soLuongTreEm,
+                                              soLuongNguoiTH: pRoom!.infoBook.map((e) => e.countInfoRoom.soluongNguoiLon).reduce((value, element) => value + element),
+                                              soLuongTreEm: pRoom!.infoBook.map((e) => e.countInfoRoom.soLuongTreEm).reduce((value, element) => value + element),
                                               gia: isSale ? giaSale : total,
-                                              ngayDat:
-                                                  infoBook.ngayDat.timeCheckin!,
-                                              ngayTra: infoBook
-                                                  .ngayDat.timeCheckout!,
-                                              idPhong: infoBook.idPhong);
-                                        })).then((bookRoom) {
+                                              ngayDat: pRoom!.infoBook[0].ngayDat.timeCheckin!,
+                                              ngayTra: pRoom!.infoBook[0].ngayDat.timeCheckout!,
+                                              idPhong: pRoom!.infoBook.map((e) => e.idPhong).expand((element) => element).toList()
+                                          )]
+                                        ).then((bookRoom) {
                                           if (bookRoom
                                               .every((element) => element)) {
                                             succesAlert(
@@ -462,6 +573,7 @@ class _CartPageState extends State<CartPage> {
                                         setState(() {
                                           _isLoadThanhToan = true;
                                         });
+
                                       },
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
