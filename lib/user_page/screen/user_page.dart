@@ -134,11 +134,11 @@ class _UserPageState extends State<UserPage> {
                       onTap: () {
                         // Todo: select image to set avatar
                         showModalBottomSheet<int>(
-                          isDismissible: false,
+                          isDismissible: true,
                           context: context,
                           builder: (BuildContext context) {
                             return Container(
-                              height: _height / 3,
+                              height: _height / 4,
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -148,7 +148,7 @@ class _UserPageState extends State<UserPage> {
                                       Navigator.pop(context);
                                       _onImageButtonPressed(ImageSource.camera, context: context);
                                     }, 
-                                    icon: Icon(Icons.camera, size: _width / 8,),
+                                    icon: Icon(Icons.camera, size: _width / 8, color: Colors.amber,),
                                     label: Text('Camera', style: TextStyle(fontSize: _width / 18),),
                                   ),
                                   TextButton.icon(
@@ -156,7 +156,7 @@ class _UserPageState extends State<UserPage> {
                                       Navigator.pop(context);
                                       _onImageButtonPressed(ImageSource.gallery, context: context);
                                     }, 
-                                    icon: Icon(Icons.image_outlined, size: _width / 8,),
+                                    icon: Icon(Icons.image_outlined, size: _width / 8, color: Colors.green.shade400,),
                                     label: Text('Gellary', style: TextStyle(fontSize: _width / 18),),
                                   )
                                 ],

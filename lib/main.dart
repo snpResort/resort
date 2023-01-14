@@ -18,6 +18,7 @@ import 'package:resort/explore_page/screen/explore_page.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/screen/home_page.dart';
 import 'package:resort/home_page/screen/room_info_page.dart';
+import 'package:resort/home_page/screen/room_search.dart';
 import 'package:resort/home_page/screen/rooms_info.dart';
 import 'package:resort/user_page/screen/history_booked_page.dart';
 import 'package:resort/user_page/screen/user_info_page.dart';
@@ -107,7 +108,9 @@ class MyApp extends StatelessWidget {
           RoomInfoPage.id: (context) => const RoomInfoPage(),
           UserInfoPage.id: (context) => const UserInfoPage(),
           RoomsInfo.id: (context) => const RoomsInfo(),
-          HistoryBooked.id: (context) => const HistoryBooked(),
+          HistoryBooked.id: (context) => const HistoryBooked(),              
+          RoomSearch.id: (context) => RoomSearch(),
+
         },
       ),
     );
@@ -172,6 +175,7 @@ class _AppState extends State<App> {
               VerifyPage.id: (context) => const VerifyPage(),
               RegisterInfo.id: (context) => const RegisterInfo(),
               RoomsInfo.id: (context) => const RoomsInfo(),
+              RoomSearch.id: (context) => RoomSearch(),
               RoomInfoPage.id: (context) => const RoomInfoPage(),
             },
           ),

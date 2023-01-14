@@ -14,11 +14,13 @@ import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/request/room_request.dart';
 import 'package:resort/home_page/screen/room_info_page.dart';
+import 'package:resort/home_page/screen/room_search.dart';
 import 'package:resort/home_page/screen/rooms_info.dart';
 import 'package:resort/widgets/calendar_custom.dart';
 import 'package:resort/widgets/carouse_slider.dart';
 import 'package:resort/widgets/custom_lp.dart';
 import 'package:resort/widgets/gradient_mask.dart';
+import 'package:resort/widgets/info_alert.dart';
 import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/star_clipper.dart';
 import 'package:resort/widgets/wrong_alert.dart';
@@ -50,6 +52,9 @@ class _HomePageState extends State<HomePage> {
   DateTime _ngayDi = DateTime.now().add(Duration(days: 1));
 
   TextEditingController _priceController = TextEditingController();
+
+  int _tempSoLuongNguoi = 1;
+  int _tempSoLuongPhong = 1;
 
   @override
   void didChangeDependencies() {
@@ -327,7 +332,7 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                             ),
                                             Text(
-                                              '1 người, 1 phòng',
+                                              '$_tempSoLuongNguoi người, $_tempSoLuongPhong phòng',
                                               style: TextStyle(
                                                 fontSize: _width / 21,
                                               ),
@@ -342,7 +347,7 @@ class _HomePageState extends State<HomePage> {
                                       // todo: handle search room
                                       print('search ${rooms.length}');
                                      
-                                      for (var room in rooms) {
+                                      final searchRoom = rooms.where((room) {
                                         bool flagCheckPrice = room.gia <= int.parse(_priceController.text.replaceAll(',', ''));
                                         //! ===========================================
                                         List<String> roomBooked = [];
@@ -372,11 +377,23 @@ class _HomePageState extends State<HomePage> {
                                         print('phongConTrong cua p ${room.ten}: ${phongConTrong.length}');
 
                                         //! ===========================================
-                                        bool flagPeople = room.soNgLon == 0;
-                                        bool flagRoom = phongConTrong.length < 0;
+                                        bool flagPeople = room.soNgLon >= _tempSoLuongNguoi;
+                                        bool flagRoom = phongConTrong.length >= _tempSoLuongPhong;
 
-                                        // return flagCheckPrice && flagPeopleAndRoom;
-                                      }//);
+                                        return flagCheckPrice && flagPeople && flagRoom;
+                                      }).toList();
+                                      if (searchRoom.length == 0) {
+                                        infoAlert(context, 'Không tìm thầy phòng phù hợp\nVui lòng thử lại');
+                                      } else {
+                                        // todo: navigator into page room search
+                                        PersistentNavBarNavigator.pushNewScreen(
+                                          context,
+                                          screen: RoomSearch(listSearchRoom: searchRoom),
+                                          withNavBar: false, // OPTIONAL VALUE. True by default.
+                                          pageTransitionAnimation:
+                                              PageTransitionAnimation.cupertino,
+                                        );
+                                      }
                                     },
                                     child: Container(
                                       width: double.infinity,
