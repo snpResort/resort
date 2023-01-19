@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +9,15 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
+import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/db_user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/constant/app_string.dart';
 import 'package:resort/main.dart';
+import 'package:resort/user_page/request/user_request.dart';
 import 'package:resort/user_page/screen/history_booked_page.dart';
 import 'package:resort/user_page/screen/user_info_page.dart';
+import 'package:resort/widgets/loading_widget.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -23,10 +29,32 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  bool isLogin = false;
+  User? _user;
+  
+  bool _isload = false;
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    Provider.of<PUser>(context, listen: false);
+  }
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+
+    Provider.of<PUser>(context, listen: false);
+  }
   @override
   Widget build(BuildContext context) {
-    final isLogin = Provider.of<PUser>(context).isLogin;
-    final _user = isLogin ? Provider.of<PUser>(context).user : null;
+    isLogin = Provider.of<PUser>(context).isLogin;
+    _user = isLogin ? Provider.of<PUser>(context).user : null;
+
+    print(DBUser.getUser().toString());
+
+    print('_user: ${_user!.avt}');
 
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
@@ -40,9 +68,21 @@ class _UserPageState extends State<UserPage> {
           source: source,
         );
         setState(() {
-          _imageFile = pickedFile;
+          _isload = true;
         });
+        _imageFile = pickedFile;
+        File file = File(_imageFile!.path);
+        final base64Image = base64Encode(file.readAsBytesSync());
+        final image = await updateAvatar(base64: base64Image, userID: _user!.idTK);
+        setState(() {
+          _isload = false;
+        });
+        print('image: $image');
+        _user!.avt = image;
+        Provider.of<PUser>(context!, listen: false).setAVT(_user!);
+        
       } catch (e) {
+        print(e);
         setState(() {
         });
       }
@@ -91,6 +131,7 @@ class _UserPageState extends State<UserPage> {
                         ),
                         CachedNetworkImage(
                           imageUrl: _user!.avt,
+                          cacheKey: DateTime.now().toIso8601String(),
                           imageBuilder: (context, imageProvider) {
                             return Container(
                               height: _width / 4,
@@ -111,7 +152,7 @@ class _UserPageState extends State<UserPage> {
                                 borderRadius: BorderRadius.circular(365),
                               ),
                               child: Center(
-                                child: CircularProgressIndicator(),
+                                child: LoadingWidget(color: Colors.orange.shade700),
                               ),
                             );
                           },
@@ -182,7 +223,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  _user.hoTen,
+                  _user!.hoTen,
                   style: TextStyle(color: Colors.white, fontSize: _width / 12),
                 ),
                 Row(
@@ -198,7 +239,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      _user.member.loaiThanhVien,
+                      _user!.member.loaiThanhVien,
                       style: TextStyle(
                         fontSize: _width / 16,
                         color: Colors.orange,
@@ -306,7 +347,7 @@ class _UserPageState extends State<UserPage> {
                     const SizedBox(height: 28),
                     Text(
                       // Todo: change name user
-                      _user.hoTen,
+                      _user!.hoTen,
                       style: TextStyle(
                         fontSize: _width / 14,
                         color: Colors.white,
@@ -314,7 +355,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                     Text(
                       // Todo: change code
-                      _user.idTK,
+                      _user!.idTK,
                       style: TextStyle(
                         fontSize: _width / 13,
                         color: Colors.white,
@@ -442,6 +483,13 @@ class _UserPageState extends State<UserPage> {
                       const SizedBox(height: 55),
                     ],
                   ),
+                  if (_isload) 
+                  Container(
+                    height: _height,
+                    width: _width,
+                    color: Colors.black54,
+                    child: LoadingWidget(),
+                  )
                 ],
               )),
         )

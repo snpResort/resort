@@ -72,4 +72,9 @@ class User {
     required this.username,
     required this.password,
   });
+
+  @override
+  String toString() {
+    return 'User(username: $username, password: $password, hoTen: $hoTen, ngaySinh: $ngaySinh, canCuoc: $canCuoc, sdt: $sdt, email: $email, gioiTinh: $gioiTinh, diaChi: $diaChi, avt: $avt, idTK: $idTK, diemTichLuy: $diemTichLuy, member: $member)';
+  }
 }

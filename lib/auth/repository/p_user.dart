@@ -11,7 +11,15 @@ class PUser extends ChangeNotifier {
     this.token = token;
     notifyListeners();
   }
+  void setAVT(User user) {
+    print(user.toString());
+    this.user = user;
+    print('first ${DBUser.getUser().toString()}');
 
+    DBUser.saveUser(user);
+    print(DBUser.getUser().toString());
+    notifyListeners();
+  }
   void setupUser(User user) {
     isLogin = false;
     this.user = user;

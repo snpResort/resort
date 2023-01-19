@@ -3,11 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:resort/constant/app_string.dart';
 import 'package:resort/explore_page/request/service_request.dart';
 import 'package:resort/widgets/carouse_slider.dart';
 
 import 'package:resort/explore_page/model/service.dart';
+import 'package:resort/widgets/custom_list_image.dart';
+import 'package:resort/widgets/loading_widget.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -67,7 +70,7 @@ class _ExplorePageState extends State<ExplorePage> {
           backgroundColor: Colors.transparent,
           body: _isLoad
               ? Center(
-                  child: CircularProgressIndicator(),
+                  child: LoadingWidget(),
                 )
               : SafeArea(
                   child: SingleChildScrollView(
@@ -76,46 +79,70 @@ class _ExplorePageState extends State<ExplorePage> {
                       children: [
                         const SizedBox(height: 25),
                         CarouseSlider(banners: banners),
-                        Container(
-                          child: ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: _services.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                child: Column(
-                                  children: [
-                                    const SizedBox(height: 40),
-                                    Text(
-                                      '- ${_services[index].tenDV} -',
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _services.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 40),
+                                  Text(
+                                    '${_services[index].tenDV}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: _width / 10,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 40),
+                                  GridView.custom(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    gridDelegate: SliverStairedGridDelegate(
+                                      crossAxisSpacing: 38,
+                                      mainAxisSpacing: 14,
+                                      // startCrossAxisDirectionReversed: true,
+                                      pattern: [
+                                        StairedGridTile(0.5, 1),
+                                        StairedGridTile(0.5, 3 / 4),
+                                        StairedGridTile(1.0, 5 / 4),
+                                      ],
+                                    ),
+                                    childrenDelegate: SliverChildBuilderDelegate(
+                                      childCount: _services[index].images.length,
+                                      (context, indexImage) => GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext context) => CustomListImage(currentIndex: indexImage, imagePaths: _services[index].images,)));
+                                        },
+                                        child: CachedNetworkImage(
+                                            imageUrl: _services[index].images[indexImage],
+                                          ),
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                  const SizedBox(height: 20),
+                                  Container(
+                                    margin:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    child: Text(
+                                      '${_services[index].moTa}',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w400,
-                                        fontSize: _width / 10,
+                                        fontSize: _width / 18,
                                       ),
                                     ),
-                                    const SizedBox(height: 40),
-                                    CachedNetworkImage(
-                                      imageUrl: '${_services[index].images[0]}',
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Container(
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 10),
-                                      child: Text(
-                                        '${_services[index].moTa}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: _width / 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 65),
                       ],

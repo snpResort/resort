@@ -18,11 +18,14 @@ import 'package:resort/home_page/screen/room_search.dart';
 import 'package:resort/home_page/screen/rooms_info.dart';
 import 'package:resort/widgets/calendar_custom.dart';
 import 'package:resort/widgets/carouse_slider.dart';
+import 'package:resort/widgets/count_info.dart';
 import 'package:resort/widgets/custom_lp.dart';
 import 'package:resort/widgets/gradient_mask.dart';
 import 'package:resort/widgets/info_alert.dart';
 import 'package:resort/widgets/loading_widget.dart';
+import 'package:resort/widgets/message_alert.dart';
 import 'package:resort/widgets/star_clipper.dart';
+import 'package:resort/widgets/warning_alert.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
 
@@ -53,7 +56,9 @@ class _HomePageState extends State<HomePage> {
 
   TextEditingController _priceController = TextEditingController();
 
-  int _tempSoLuongNguoi = 1;
+  int _tempSoLuongNguoiLon = 1;
+  int _tempSoLuongTreEm = 0;
+  int _tempSoLuongNguoi = 0;
   int _tempSoLuongPhong = 1;
 
   @override
@@ -83,6 +88,8 @@ class _HomePageState extends State<HomePage> {
         }
       });
     });
+
+    _tempSoLuongNguoi = _tempSoLuongNguoiLon + _tempSoLuongTreEm;
 
     isLoad = true;
   }
@@ -185,8 +192,9 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(14),
                                 color: Colors.white,
                               ),
-                              width: _width / 1.2,
-                              padding: EdgeInsets.all(15),
+                              width: _width,
+                              margin: const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                               child: Column(
                                 children: [
                                   TextField(
@@ -208,6 +216,7 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     },
                                   ),
+                                  const SizedBox(height: 5,),
                                   GestureDetector(
                                     onTap: () {
                                       CalendarCustom(
@@ -305,94 +314,123 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                   ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(width: .6),
-                                      borderRadius: BorderRadius.circular(7),
-                                    ),
-                                    margin: EdgeInsets.symmetric(vertical: 2.5),
-                                    padding: EdgeInsets.all(10),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          CupertinoIcons.person_3,
-                                          size: _width / 13,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Khách Số lượng phòng',
-                                              style: TextStyle(
-                                                fontSize: _width / 25,
-                                              ),
-                                            ),
-                                            Text(
-                                              '$_tempSoLuongNguoi người, $_tempSoLuongPhong phòng',
-                                              style: TextStyle(
-                                                fontSize: _width / 21,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
+                                  const SizedBox(height: 5,),
                                   GestureDetector(
                                     onTap: () {
-                                      // todo: handle search room
-                                      print('search ${rooms.length}');
-                                     
-                                      final searchRoom = rooms.where((room) {
-                                        bool flagCheckPrice = room.gia <= int.parse(_priceController.text.replaceAll(',', ''));
-                                        //! ===========================================
-                                        List<String> roomBooked = [];
-                                        for (DateTime d = _ngayDen;
-                                            d.compareTo(_ngayDi) <= 0;
-                                            d = d.add(Duration(days: 1))) {
-                                          roomBooked.addAll(room
-                                              .ngayDaDat
-                                              .where((info) =>
-                                                  d.compareTo(info
-                                                          .timeCheckin!) >=
-                                                      0 &&
-                                                  d.compareTo(info
-                                                          .timeCheckout!) <=
-                                                      0)
-                                              .map((e) => e.room)
-                                              .toSet()
-                                              .toList());
-                                        }
-                                        roomBooked = roomBooked.toSet().toList();
-
-                                        final phongConTrong = room.rooms
-                                            .where((_room) => !roomBooked
-                                                .contains(_room.tenPhong))
-                                            .toList();
-
-                                        print('phongConTrong cua p ${room.ten}: ${phongConTrong.length}');
-
-                                        //! ===========================================
-                                        bool flagPeople = room.soNgLon >= _tempSoLuongNguoi;
-                                        bool flagRoom = phongConTrong.length >= _tempSoLuongPhong;
-
-                                        return flagCheckPrice && flagPeople && flagRoom;
-                                      }).toList();
-                                      if (searchRoom.length == 0) {
-                                        infoAlert(context, 'Không tìm thầy phòng phù hợp\nVui lòng thử lại');
+                                      showModalBottomSheet<Map<String, int>>(
+                                        isDismissible: false,
+                                        context: context,
+                                        builder:(BuildContext context) {
+                                          return CountInfo(
+                                            soLuongTreEm: _tempSoLuongTreEm, 
+                                            soluongNguoiLon: _tempSoLuongNguoiLon, 
+                                            soLuongPhong: _tempSoLuongPhong);
+                                      }).then((value) {
+                                        setState(() {
+                                          if (value != null) {
+                                            _tempSoLuongTreEm = value['soLuongTreEm'] ?? 1;
+                                            _tempSoLuongNguoiLon = value['soluongNguoiLon'] ?? 1;
+                                            _tempSoLuongNguoi = _tempSoLuongNguoiLon + _tempSoLuongTreEm;
+                                            _tempSoLuongPhong = value['soLuongPhong'] ?? 1;
+                                          }
+                                        });
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(width: .6),
+                                        borderRadius: BorderRadius.circular(7),
+                                      ),
+                                      margin: EdgeInsets.symmetric(vertical: 2.5),
+                                      padding: EdgeInsets.all(10),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            CupertinoIcons.person_3,
+                                            size: _width / 13,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Khách Số lượng phòng',
+                                                style: TextStyle(
+                                                  fontSize: _width / 25,
+                                                ),
+                                              ),
+                                              Text(
+                                                '$_tempSoLuongNguoi người, $_tempSoLuongPhong phòng',
+                                                style: TextStyle(
+                                                  fontSize: _width / 21,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5,),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (_priceController.text.isEmpty) {
+                                        messageAlert(context, 'Vui lòng nhập giá');
                                       } else {
-                                        // todo: navigator into page room search
-                                        PersistentNavBarNavigator.pushNewScreen(
-                                          context,
-                                          screen: RoomSearch(listSearchRoom: searchRoom),
-                                          withNavBar: false, // OPTIONAL VALUE. True by default.
-                                          pageTransitionAnimation:
-                                              PageTransitionAnimation.cupertino,
-                                        );
+                                        FocusManager.instance.primaryFocus?.unfocus();
+                                        // todo: handle search room
+                                        print('search ${rooms.length}');
+                                      
+                                        final searchRoom = rooms.where((room) {
+                                          bool flagCheckPrice = room.gia <= int.parse(_priceController.text.replaceAll(',', ''));
+                                          //! ===========================================
+                                          List<String> roomBooked = [];
+                                          for (DateTime d = _ngayDen;
+                                              d.compareTo(_ngayDi) <= 0;
+                                              d = d.add(Duration(days: 1))) {
+                                            roomBooked.addAll(room
+                                                .ngayDaDat
+                                                .where((info) =>
+                                                    d.compareTo(info
+                                                            .timeCheckin!) >=
+                                                        0 &&
+                                                    d.compareTo(info
+                                                            .timeCheckout!) <=
+                                                        0)
+                                                .map((e) => e.room)
+                                                .toSet()
+                                                .toList());
+                                          }
+                                          roomBooked = roomBooked.toSet().toList();
+
+                                          final phongConTrong = room.rooms
+                                              .where((_room) => !roomBooked
+                                                  .contains(_room.tenPhong))
+                                              .toList();
+
+                                          print('phongConTrong cua p ${room.ten}: ${phongConTrong.length}');
+
+                                          //! ===========================================
+                                          bool flagPeople = room.soNgLon >= _tempSoLuongNguoi;
+                                          bool flagRoom = phongConTrong.length >= _tempSoLuongPhong;
+
+                                          return flagCheckPrice && flagPeople && flagRoom;
+                                        }).toList();
+                                        if (searchRoom.length == 0) {
+                                          messageAlert(context, 'Không tìm thầy phòng phù hợp\nVui lòng thử lại', color: Colors.blue.shade300);
+                                        } else {
+                                          // todo: navigator into page room search
+                                          PersistentNavBarNavigator.pushNewScreen(
+                                            context,
+                                            screen: RoomSearch(listSearchRoom: searchRoom),
+                                            withNavBar: false, // OPTIONAL VALUE. True by default.
+                                            pageTransitionAnimation:
+                                                PageTransitionAnimation.cupertino,
+                                          );
+                                        }
                                       }
                                     },
                                     child: Container(

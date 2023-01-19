@@ -135,6 +135,8 @@ class _AppState extends State<App> {
     super.didChangeDependencies();
     // check login
     if (DBUser.hasLogin()) {
+      print('login');
+      print(DBUser.getUser().toString());
       Provider.of<PUser>(context, listen: false).login(DBUser.getUser()!);
     }
     Provider.of<PUser>(context, listen: false);
@@ -152,7 +154,7 @@ class _AppState extends State<App> {
         const CartPage(),
         const AboutPage(),
       ];
-      if (DBUser.hasLogin()) {
+      if (Provider.of<PUser>(context, listen: true).isLogin) {
         tabPage.add(const UserPage());
       }
       print('\n=============================== tabPage length: ${tabPage.length} ');
@@ -220,7 +222,7 @@ class _AppState extends State<App> {
           inactiveColorPrimary: CupertinoColors.systemGrey,
         ),
       ];
-      if (DBUser.hasLogin()) {
+      if (Provider.of<PUser>(context, listen: true).isLogin) {
         listButton.add(
           PersistentBottomNavBarItem(
             icon: Icon(CupertinoIcons.person),
