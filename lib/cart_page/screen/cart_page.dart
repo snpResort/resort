@@ -16,6 +16,7 @@ import 'package:resort/constant/app_string.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/main.dart';
 import 'package:resort/widgets/loading_widget.dart';
+import 'package:resort/widgets/message_alert.dart';
 import 'package:resort/widgets/success_alert.dart';
 import 'package:resort/widgets/warning_alert.dart';
 import 'package:resort/widgets/wrong_alert.dart';
@@ -136,9 +137,9 @@ class _CartPageState extends State<CartPage>
                     height: _height / 1.2,
                   )
                 : Container(
-                    margin: const EdgeInsets.symmetric(
+                    margin: EdgeInsets.symmetric(
                       horizontal: 20,
-                      vertical: 5,
+                      vertical: _heightAppBar - _width / 15,
                     ),
                     child: Column(
                       children: [
@@ -381,18 +382,18 @@ class _CartPageState extends State<CartPage>
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
+                                    FocusManager.instance.primaryFocus?.unfocus();
                                     getSale(id: _idSaleController.text)
                                         .then((khuyenMai) {
                                       if (_idSaleController.text.isEmpty) {
-                                        ackAlert(
+                                        messageAlert(
                                           context,
-                                          'Vui lòng nhập mã khuyến mãi',
+                                          'Vui lòng nhập mã khuyến mãi'
                                         );
                                       }
-                                      if (khuyenMai == 0) {
-                                        warningAlert(
+                                      else if (khuyenMai == 0) {
+                                        _idSaleController.clear();
+                                        messageAlert(
                                           context,
                                           'Mã giảm giá không phù hợp.\nVui lòng kiểm tra lại',
                                         );
@@ -527,18 +528,21 @@ class _CartPageState extends State<CartPage>
                                     ? null
                                     : () {
                                         if (!DBUser.hasLogin()) {
-                                          warningAlert(context,
-                                              'Vui lòng đăng nhập để thực hiện thanh toán',
-                                              onOK: () {
-                                            PersistentNavBarNavigator
-                                                .pushNewScreenWithRouteSettings(
-                                              context,
-                                              screen: ScreenLogin(),
-                                              withNavBar: false,
-                                              settings: RouteSettings(
-                                                  name: ScreenLogin.id),
-                                            );
-                                          });
+                                          messageAlert(
+                                            context,
+                                            'Vui lòng đăng nhập để thực hiện thanh toán',
+                                            onPressOK: () {
+                                              PersistentNavBarNavigator
+                                                  .pushNewScreenWithRouteSettings(
+                                                context,
+                                                screen: ScreenLogin(),
+                                                withNavBar: false,
+                                                settings: RouteSettings(
+                                                    name: ScreenLogin.id),
+                                              );
+                                            },
+                                            onPressCancel: () {}
+                                          );
                                           return;
                                         }
                                         Future.wait(
@@ -554,9 +558,12 @@ class _CartPageState extends State<CartPage>
                                         ).then((bookRoom) {
                                           if (bookRoom
                                               .every((element) => element)) {
-                                            succesAlert(
+                                            messageAlert(
                                               context,
                                               'Đặt phòng thành công',
+                                              onPressOK: () {
+                                                // todo: reload data
+                                              }
                                             );
                                             Provider.of<PRoom>(context,
                                                     listen: false)
@@ -607,7 +614,7 @@ class _CartPageState extends State<CartPage>
           ),
           child: Container(
             width: _width,
-            height: _heightAppBar,
+            height: _heightAppBar + _width / 15,
             alignment: Alignment.center,
             decoration: BoxDecoration(
                 color: Colors.orange,

@@ -453,7 +453,7 @@ class _UserPageState extends State<UserPage> {
         Image.asset(
           kBanner,
           fit: BoxFit.cover,
-          height: 155,
+          height: 165,
         ),
         SafeArea(
           child: SingleChildScrollView(

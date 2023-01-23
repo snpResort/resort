@@ -9,6 +9,7 @@ import 'package:resort/auth/models/member.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/db_user.dart';
 import 'package:resort/auth/repository/p_user.dart';
+import 'package:resort/auth/screen/change_password.dart';
 import 'package:resort/auth/screen/login_page.dart';
 import 'package:resort/auth/screen/register_info.dart';
 import 'package:resort/auth/screen/register_page.dart';
@@ -103,7 +104,8 @@ class MyApp extends StatelessWidget {
         routes: {
           ScreenLogin.id: (context) => const ScreenLogin(),
           ScreenRegister.id: (context) => const ScreenRegister(),
-          VerifyPage.id: (context) => const VerifyPage(),
+          VerifyPage.id: (context) => VerifyPage(),
+          ChangePassword.id: (context) => const ChangePassword(),
           RegisterInfo.id: (context) => const RegisterInfo(),
           RoomInfoPage.id: (context) => const RoomInfoPage(),
           UserInfoPage.id: (context) => const UserInfoPage(),
@@ -130,15 +132,22 @@ bool isUpdateBottomBar = false;
 class _AppState extends State<App> {
 
   @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
+  void initState() {
+    // TODO: implement initState
+    super.initState();
     // check login
     if (DBUser.hasLogin()) {
       print('login');
       print(DBUser.getUser().toString());
       Provider.of<PUser>(context, listen: false).login(DBUser.getUser()!);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    
     Provider.of<PUser>(context, listen: false);
     Provider.of<PRoom>(context, listen: false);
 
@@ -174,7 +183,8 @@ class _AppState extends State<App> {
             routes: {
               ScreenLogin.id: (context) => const ScreenLogin(),
               ScreenRegister.id: (context) => const ScreenLogin(),
-              VerifyPage.id: (context) => const VerifyPage(),
+              VerifyPage.id: (context) => VerifyPage(),
+              ChangePassword.id: (context) => const ChangePassword(),
               RegisterInfo.id: (context) => const RegisterInfo(),
               RoomsInfo.id: (context) => const RoomsInfo(),
               RoomSearch.id: (context) => RoomSearch(),

@@ -59,28 +59,59 @@ Future<Map<String, dynamic>?> VerifyCode({
   }
 }
 
-Future<Map<String, dynamic>?> RegisterRequest({required User user}) async {
+Future<RegisterResponse> RegisterRequest({required User user}) async {
   final String path = '/auth/register';
+  RegisterResponse result = RegisterResponse();
 
   Map<String, String> headers = {"Content-type": "application/json"};
-  String json =
-      '{"username": "${user.username}","password": "${user.password}","hoTen": "${user.hoTen}","ngaySinh": "${DateFormat('yyyy-MM-dd').format(user.ngaySinh)}","cccd": "${user.canCuoc}","email": "${user.email}","sdt": "${user.sdt}","diaChi": "${user.diaChi}"}';
+  // String json =
+  //     '{"username": "${user.username}","password": "${user.password}","hoTen": "${user.hoTen}","ngaySinh": "${DateFormat('yyyy-MM-dd').format(user.ngaySinh)}","cccd": "${user.canCuoc}","email": "${user.email}","sdt": "${user.sdt.replaceAll(' ', '')}","diaChi": "${user.diaChi}"}';
+
+  final jsonData = {
+    "username": "${user.username}",
+    "password": "${user.password}",
+    "hoTen": "${user.hoTen}",
+    "ngaySinh": "${DateFormat('yyyy-MM-dd').format(user.ngaySinh)}",
+    "cccd": "${user.canCuoc}",
+    "email": "${user.email}",
+    "sdt": "${user.sdt.replaceAll(' ', '')}",
+    "diaChi": "${user.diaChi}"
+  };
+
+  print('------------ json data register: $jsonData');
 
   Response response = await post(
     Uri.parse('$kUrlServer$path'),
     headers: headers,
-    body: json,
+    body: jsonEncode(jsonData),
   );
 
   try {
+    var body = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      var result = jsonDecode(response.body);
-      return result;
+      return result
+        ..hasData = true
+        ..hasError = false
+        ..message = body['Message'];
     }
+    return result
+      ..hasData = false
+      ..hasError = true
+      ..message = body['Message'];
   } catch (e) {
-    return null;
+    return result
+      ..hasData = false
+      ..hasError = true
+      .. message = e.toString();
   }
 }
+
+class RegisterResponse {
+  bool? hasData;
+  bool? hasError;
+  String? message;
+}
+
 
 Future<bool> CheckUsername({required String username}) async {
   final String path = '/auth/checkUsername?username=$username';

@@ -27,22 +27,22 @@ class _RoomSearchState extends State<RoomSearch> {
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
 
-    return SafeArea(
-      child: Stack(
-        children: [
-          Image.asset(
-            kBg1,
-            fit: BoxFit.fill,
-            height: _height,
-            width: _width,
-          ),
-          Scaffold(
+    return Stack(
+      children: [
+        Image.asset(
+          kBg1,
+          fit: BoxFit.fill,
+          height: _height,
+          width: _width,
+        ),
+        SafeArea(
+          child: Scaffold(
             backgroundColor: Colors.transparent,
             body: SingleChildScrollView(
               child: Column(
                 children: [
                   Container(
-                    margin: EdgeInsets.all(10),
+                    margin: EdgeInsets.all(20),
                     child: Text(
                       'Danh sách phòng',
                       style: TextStyle(fontSize: _width/15, color: Colors.white),
@@ -57,35 +57,36 @@ class _RoomSearchState extends State<RoomSearch> {
               ),
             ),
           ),
-          Container(
-            margin: EdgeInsets.only(left: 15, top: 15),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
-                    height: 30,
-                    width: 30,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 3,
-                        ),
-                      ],
-                    ),
-                    child: Icon(CupertinoIcons.back),
+        ),
+        Positioned(
+          left: 15,
+          top: 40,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Container(
+                  height: 30,
+                  width: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 3,
+                      ),
+                    ],
                   ),
-                )
-              ],
-            ),
+                  child: Icon(CupertinoIcons.back),
+                ),
+              )
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 
 kEmailTextFieldDecoration() => const InputDecoration(
     border: OutlineInputBorder(),
-    labelText: 'Email',
+    hintText: 'Email',
+    fillColor: Colors.white,
+    filled: true,
     prefixIcon: Icon(Icons.person));
 
 kVerifyTextFieldDecoration() => const InputDecoration(
     border: OutlineInputBorder(),
-    labelText: 'Code',
+    hintText: 'Code',
+    fillColor: Colors.white,
+    filled: true,
     prefixIcon: Icon(Icons.numbers));
 
 kPasswordTextFieldDecoration() => const InputDecoration(
     border: OutlineInputBorder(),
-    labelText: 'Password',
+    hintText: 'Password',
+    fillColor: Colors.white,
+    filled: true,
     prefixIcon: Icon(Icons.lock),
     suffixIcon: Icon(Icons.remove_red_eye));
 

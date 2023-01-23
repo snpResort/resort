@@ -6,5 +6,5 @@ const kBg2 = 'assets/images/bg2.jpeg';
 const kBanner = 'assets/images/banner.jpg';
 const kCartEmpty = 'assets/images/cart_empty.png';
 const kAvtNull = 'assets/images/user_avt_err.png';
-// const kUrlServer = 'http://192.168.0.115:17051';
-const kUrlServer = 'http://server-resort.ddns.net:17051';
+const kUrlServer = 'http://192.168.1.100:17051';
+// const kUrlServer = 'http://server-resort.ddns.net:17051';

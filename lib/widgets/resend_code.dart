@@ -57,7 +57,7 @@ class _ButtonReSendCodeState extends State<ButtonReSendCode> {
               '${widget.title} ${_number_timecountdown == 0 ? '' : '($_number_timecountdown)'}'
                   .trim(),
               style: TextStyle(
-                color: !_isTimeout ? Colors.white54 : Colors.white,
+                color: !_isTimeout ? Colors.white54 : Colors.black,
                 fontSize: widget.width / 7,
                 fontWeight: FontWeight.w300,
               ),

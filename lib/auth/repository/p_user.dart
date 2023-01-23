@@ -7,6 +7,12 @@ class PUser extends ChangeNotifier {
   bool isLogin = false;
   String? token;
 
+  void setUser (User user) {
+    this.user = user;
+
+    notifyListeners();
+  }
+
   void setToken(token) {
     this.token = token;
     notifyListeners();

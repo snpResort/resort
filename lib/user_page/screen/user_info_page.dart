@@ -43,6 +43,12 @@ class _UserInfoPageState extends State<UserInfoPage> {
           'Thông tin cá nhân',
           style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {}, 
+            icon: Icon(Icons.edit, color: Colors.black,)
+          )
+        ],
       ),
       body: Container(
         child: Column(

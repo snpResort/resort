@@ -51,29 +51,39 @@ class _AboutPageState extends State<AboutPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Icon(
-                          CupertinoIcons.map,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Moonlight Resort',
-                          style: TextStyle(
-                            fontSize: _width / 17,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                    GestureDetector(
+                      onTap: () => launchUrlString(
+                        'https://www.google.com/maps/search/?api=1&query=140 Lê Trọng Tấn, Phường Tây Thành, Quận Tân Phú, Thành Phố Hồ Chí Minh',
+                        mode: LaunchMode.externalApplication
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.map,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Moonlight Resort',
+                                style: TextStyle(
+                                  fontSize: _width / 17,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '140 Lê Trọng Tấn, Phường Tây Thành, Quận Tân Phú, Thành Phố Hồ Chí Minh',
-                      style: TextStyle(
-                        fontSize: _width / 17,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                          Text(
+                            '140 Lê Trọng Tấn, Phường Tây Thành, Quận Tân Phú, Thành Phố Hồ Chí Minh',
+                            style: TextStyle(
+                              fontSize: _width / 17,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -122,8 +132,9 @@ class _AboutPageState extends State<AboutPage> {
                     Container(
                       width: _width,
                       height: 250,
-                      color: Colors.amber,
+                      color: Colors.transparent,
                       child: WebView(
+                        backgroundColor: Colors.transparent,
                         initialUrl: Uri.dataFromString('''
                           <html>
                             <body>

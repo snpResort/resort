@@ -4,10 +4,15 @@ import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/auth/request/login_request.dart';
+import 'package:resort/auth/request/register_request.dart';
 import 'package:resort/auth/screen/register_page.dart';
+import 'package:resort/auth/screen/verify_page.dart';
+import 'package:resort/constant/app_string.dart';
 import 'package:resort/constant/app_style.dart';
 import 'package:resort/main.dart';
+import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/logo.dart';
+import 'package:resort/widgets/message_alert.dart';
 import 'package:resort/widgets/rounded_button.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
@@ -38,6 +43,7 @@ class ScreenLoginState extends State<ScreenLogin> {
     );
     final Widget textFieldContent = Container(
       padding: const EdgeInsets.all(16.0),
+      margin: EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -56,7 +62,9 @@ class ScreenLoginState extends State<ScreenLogin> {
             controller: _pw,
             focusNode: _focusPw,
             decoration: InputDecoration(
-              labelText: 'Mật khẩu',
+              hintText: 'Mật khẩu',
+              fillColor: Colors.white,
+              filled: true,
               border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: GestureDetector(
@@ -70,6 +78,26 @@ class ScreenLoginState extends State<ScreenLogin> {
               ),
             ),
           ),
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              InkWell(
+                onTap: () {
+                  print('forget password');
+                  showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (_) => ForgetPassword(),
+                  );
+                },
+                child: Text(
+                  'Quên mật khẩu?',
+                  style: TextStyle(color: Colors.green),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -81,25 +109,25 @@ class ScreenLoginState extends State<ScreenLogin> {
         // Hide keyboard on login button press
         FocusManager.instance.primaryFocus?.unfocus();
         if (_email.text.isEmpty) {
-          ackAlert(
+          messageAlert(
             context,
             'Vui lòng nhập email',
+            color: Colors.yellow.shade700
           );
-          _focusEmail.requestFocus();
           return;
         } else if (!EmailValidator.validate(_email.text)) {
-          ackAlert(
+          messageAlert(
             context,
             'Email không hợp lệ',
+            color: Colors.yellow.shade700
           );
-          _focusEmail.requestFocus();
           return;
         } else if (_pw.text.isEmpty) {
-          ackAlert(
+          messageAlert(
             context,
             'Vui lòng nhập mật khẩu',
+            color: Colors.yellow.shade700
           );
-          _focusPw.requestFocus();
           return;
         }
 
@@ -112,9 +140,10 @@ class ScreenLoginState extends State<ScreenLogin> {
             setState(() {
               _isLoading = false;
             });
-            ackAlert(
+            messageAlert(
               context,
               'Thông tin đăng nhập không chính xác.\nVui lòng kiểm tra lại',
+              color: Colors.yellow.shade700
             );
           }
         });
@@ -128,11 +157,11 @@ class ScreenLoginState extends State<ScreenLogin> {
     // Register alternative option
     final Widget bottomTextContent = Column(
       children: [
-        const SizedBox(height: 10),
+        const SizedBox(height: 15),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Không có tài khoản?'),
+            Text('Không có tài khoản?', style: TextStyle(color: Colors.white),),
             const SizedBox(width: 4.0),
             InkWell(
               onTap: () {
@@ -148,21 +177,202 @@ class ScreenLoginState extends State<ScreenLogin> {
       ],
     );
 
-    return Scaffold(
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                logo,
-                textFieldContent,
-                loginButton,
-                bottomTextContent,
-              ],
+    final _width = MediaQuery.of(context).size.width;
+    final _height = MediaQuery.of(context).size.height;
+
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Image.asset(
+              kBg1,
+              fit: BoxFit.fill,
+              height: _height,
+              width: _width,
             ),
+            SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: _height / 7,),
+                  logo,
+                  textFieldContent,
+                  loginButton,
+                  const SizedBox(height: 10,),
+                  RoundedButton(
+                    color: Colors.grey.shade400,
+                    title: 'Quay lại',
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                    }
+                  ),
+                  bottomTextContent,
+                ],
+              ),
+            ),
+            if (_isLoading) 
+            Container(
+              height: _height,
+              width: _width,
+              color: Colors.black45,
+              child: Center(
+                child: LoadingWidget(),
+              )
+            )
+          ],
+        )
+      ),
+    );
+  }
+}
+
+class ForgetPassword extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => ForgetPasswordState();
+}
+
+class ForgetPasswordState extends State<ForgetPassword>
+    with SingleTickerProviderStateMixin {
+  AnimationController? controller;
+  Animation<double>? scaleAnimation;
+  
+  bool isLoad = false;
+  TextEditingController _email = TextEditingController();
+  
+  final _focusEmail = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+    scaleAnimation = CurvedAnimation(parent: controller!, curve: Curves.elasticInOut);
+
+    controller!.addListener(() {
+      setState(() {});
+    });
+
+    controller!.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Center(
+        child: Material(
+          color: Colors.transparent,
+          child: ScaleTransition(
+            scale: scaleAnimation!,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 25),
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0)
+                )
+              ),
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        height: 45,
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        child: TextField(
+                          autofocus: true,
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: kEmailTextFieldDecoration(),
+                          focusNode: _focusEmail,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      isLoad ? Center(
+                        child: LoadingWidget(color: Colors.orange),
+                      ) 
+                      : RoundedButton(
+                        color: Colors.orange,
+                        title: 'Tiếp tục',
+                        onPressed: () async {
+                          setState(() {
+                            isLoad = true;
+                          });
+                          FocusManager.instance.primaryFocus?.unfocus();
+    
+                          if (_email.text.isEmpty) {
+                            messageAlert(
+                              context,
+                              'Vui lòng nhập email',
+                              color: Colors.yellow.shade700
+                            );
+                            FocusScope.of(context).requestFocus(_focusEmail);
+                            setState(() {
+                              isLoad = false;
+                            });
+                          } else if (!EmailValidator.validate(_email.text)) {
+                            messageAlert(
+                              context,
+                              'Email không hợp lệ',
+                              color: Colors.yellow.shade700
+                            );
+                            FocusScope.of(context).requestFocus(_focusEmail);
+                            setState(() {
+                              isLoad = false;
+                            });
+                          } else {
+                            final token = await SendVerifyCode(username: _email.text);
+                            
+                            Provider.of<PUser>(context, listen: false).setUser(User.login(username: _email.text, password: ''));
+    
+                            Provider.of<PUser>(context, listen: false).setToken(token);
+
+                            Navigator.of(context).pop();
+    
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => VerifyPage(isforgotPassword: true),
+                              )
+                            ).then((value) {
+                              setState(() {
+                                isLoad = false;
+                              });
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                    ]
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      }, 
+                      icon: Icon(Icons.close, color: Colors.red)
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

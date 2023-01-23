@@ -6,8 +6,11 @@ import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/auth/request/register_request.dart';
 import 'package:resort/auth/screen/login_page.dart';
 import 'package:resort/auth/screen/verify_page.dart';
+import 'package:resort/constant/app_string.dart';
 import 'package:resort/constant/app_style.dart';
+import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/logo.dart';
+import 'package:resort/widgets/message_alert.dart';
 import 'package:resort/widgets/rounded_button.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
@@ -31,6 +34,7 @@ class Screen_RegisterState extends State<ScreenRegister> {
   final _focusPw = FocusNode();
   final _focusRePw = FocusNode();
   bool _isLoading = false;
+  
   @override
   Widget build(BuildContext context) {
     final Widget logo = Center(
@@ -41,6 +45,7 @@ class Screen_RegisterState extends State<ScreenRegister> {
     );
     final Widget textFieldContent = Container(
       padding: const EdgeInsets.all(16.0),
+      margin: EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,7 +63,9 @@ class Screen_RegisterState extends State<ScreenRegister> {
             obscureText: _obscureTextPw,
             focusNode: _focusPw,
             decoration: InputDecoration(
-              labelText: 'Mật khẩu',
+              hintText: 'Mật khẩu',
+              fillColor: Colors.white,
+              filled: true,
               border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: GestureDetector(
@@ -80,7 +87,9 @@ class Screen_RegisterState extends State<ScreenRegister> {
             obscureText: _obscureTextRePw,
             focusNode: _focusRePw,
             decoration: InputDecoration(
-              labelText: 'Xác nhật mật khẩu',
+              hintText: 'Xác nhật mật khẩu',
+              fillColor: Colors.white,
+              filled: true,
               border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: GestureDetector(
@@ -107,42 +116,47 @@ class Screen_RegisterState extends State<ScreenRegister> {
           // Hide keyboard on login button press
           FocusManager.instance.primaryFocus?.unfocus();
           if (_email.text.isEmpty) {
-            ackAlert(
+            messageAlert(
               context,
               'Vui lòng nhập email',
+              color: Colors.yellow.shade700
             );
-            return;
-          } else if (!EmailValidator.validate(_email.text)) {
-            ackAlert(
-              context,
-              'Email không hợp lệ',
-            );
-            _focusEmail.requestFocus();
             return;
           } else if (_pw.text.isEmpty) {
-            ackAlert(
+            messageAlert(
               context,
               'Vui lòng nhập mật khẩu',
+              color: Colors.yellow.shade700
             );
             return;
           } else if (_repw.text.isEmpty) {
-            ackAlert(
+            messageAlert(
               context,
               'Vui lòng nhập xác nhận mật khẩu',
+              color: Colors.yellow.shade700
             );
             return;
           } else if (_pw.text != _repw.text) {
-            ackAlert(
+            messageAlert(
               context,
               'Xác nhận mật khẩu không chính xác',
+              color: Colors.yellow.shade700
             );
             return;
-          }
+          } else if (!EmailValidator.validate(_email.text)) {
+            messageAlert(
+              context,
+              'Email không hợp lệ',
+              color: Colors.yellow.shade700
+            );
+            _focusEmail.requestFocus();
+            return;
+          } 
           setState(() {
             _isLoading = true;
           });
           if (!await CheckUsername(username: _email.text)) {
-            ackAlert(
+            messageAlert(
               context,
               'Email đã tồn tại',
             );
@@ -167,11 +181,11 @@ class Screen_RegisterState extends State<ScreenRegister> {
     // Register alternative option
     final Widget bottomTextContent = Column(
       children: [
-        const SizedBox(height: 10),
+        const SizedBox(height: 15),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Đã có một tài khoản'),
+            Text('Đã có một tài khoản', style: TextStyle(color: Colors.white),),
             const SizedBox(width: 4.0),
             InkWell(
               onTap: () {
@@ -187,21 +201,54 @@ class Screen_RegisterState extends State<ScreenRegister> {
       ],
     );
 
-    return Scaffold(
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                logo,
-                textFieldContent,
-                registerButton,
-                bottomTextContent,
-              ],
+    final _width = MediaQuery.of(context).size.width;
+    final _height = MediaQuery.of(context).size.height;
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Image.asset(
+              kBg1,
+              fit: BoxFit.fill,
+              height: _height,
+              width: _width,
             ),
+            SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: _height / 8,),
+                  logo,
+                  textFieldContent,
+                  registerButton,
+                  const SizedBox(height: 10,),
+                  RoundedButton(
+                    color: Colors.grey.shade400,
+                    title: 'Quay lại',
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                    }
+                  ),
+                  bottomTextContent,
+                ],
+              ),
+            ),
+            if (_isLoading) 
+            Container(
+              height: _height,
+              width: _width,
+              color: Colors.black45,
+              child: Center(
+                child: LoadingWidget(),
+              )
+            )
+          ]
+        ),
+      ),
     );
   }
 }

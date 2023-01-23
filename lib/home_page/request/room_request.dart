@@ -13,13 +13,16 @@ Future<List<Room>?> roomRequest() async {
 
   Map<String, String> headers = {"Content-type": "application/json"};
 
+    print('run $kUrlServer$path');
   try {
     Response response = await get(
       Uri.parse('$kUrlServer$path'),
       headers: headers,
     );
+
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body);
+      print('response rooms: $result');
       List<Room> rooms = [];
       for (var room in result) {
         Room r = Room();
@@ -67,6 +70,8 @@ Future<List<Room>?> roomRequest() async {
           ..rates = rates
           ..ngayDaDat = ngatDaDat
           ..rooms = roomInfo;
+
+        print('room info: $r');
 
         rooms.add(r);
       }
