@@ -122,7 +122,7 @@ class _loaiPhong extends StatelessWidget {
                     .setRoom(rooms.elementAt(index));
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  screen: const RoomInfoPage(),
+                  screen: RoomInfoPage(),
                   withNavBar: false, // OPTIONAL VALUE. True by default.
                   pageTransitionAnimation: PageTransitionAnimation.cupertino,
                 );

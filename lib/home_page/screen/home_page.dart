@@ -442,7 +442,12 @@ class _HomePageState extends State<HomePage> {
                                             // todo: navigator into page room search
                                             PersistentNavBarNavigator.pushNewScreen(
                                               context,
-                                              screen: RoomSearch(listSearchRoom: searchRoom),
+                                              screen: RoomSearch(
+                                                listSearchRoom: searchRoom, 
+                                                datebook: DateBook()
+                                                  ..timeCheckin = _ngayDen
+                                                  ..timeCheckout = _ngayDi,
+                                              ),
                                               withNavBar: false, // OPTIONAL VALUE. True by default.
                                               pageTransitionAnimation:
                                                   PageTransitionAnimation.cupertino,
@@ -515,7 +520,7 @@ class _HomePageState extends State<HomePage> {
                                             .setRoom(favRoom.elementAt(index));
                                         PersistentNavBarNavigator.pushNewScreen(
                                           context,
-                                          screen: const RoomInfoPage(),
+                                          screen: RoomInfoPage(),
                                           withNavBar: false, // OPTIONAL VALUE. True by default.
                                           pageTransitionAnimation:
                                               PageTransitionAnimation.cupertino,
@@ -720,7 +725,7 @@ class _loaiPhong extends StatelessWidget {
                     .setRoom(rooms.elementAt(index));
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  screen: const RoomInfoPage(),
+                  screen: RoomInfoPage(),
                   withNavBar: false, // OPTIONAL VALUE. True by default.
                   pageTransitionAnimation: PageTransitionAnimation.cupertino,
                 );

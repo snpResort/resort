@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/constant/app_string.dart';
+import 'package:resort/home_page/model/date_book.dart';
 import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
 import 'package:resort/home_page/screen/home_page.dart';
@@ -12,10 +13,11 @@ import 'package:resort/home_page/screen/room_info_page.dart';
 import 'package:resort/widgets/custom_lp.dart';
 
 class RoomSearch extends StatefulWidget {
-  RoomSearch({super.key, this.listSearchRoom});
+  RoomSearch({super.key, this.listSearchRoom, this.datebook});
   static String id = 'RoomSearch';
 
   List<Room>? listSearchRoom;
+  DateBook? datebook;
 
   @override
   State<RoomSearch> createState() => _RoomSearchState();
@@ -51,6 +53,7 @@ class _RoomSearchState extends State<RoomSearch> {
                   _loaiPhong(
                     width: _width,
                     rooms: widget.listSearchRoom!,
+                    dateBook: widget.datebook!,
                   ),
                   const SizedBox(height: 60),
                 ],
@@ -91,11 +94,12 @@ class _RoomSearchState extends State<RoomSearch> {
   }
 }
 class _loaiPhong extends StatelessWidget {
-  _loaiPhong({Key? key, required double width, required this.rooms})
-      : _width = width,
+  _loaiPhong({Key? key, required double width, required DateBook dateBook, required this.rooms})
+      : _width = width, _ngDen = dateBook.timeCheckin!, _ngDi = dateBook.timeCheckout!,
         super(key: key);
 
   final double _width;
+  final DateTime _ngDen, _ngDi;
   List<Room> rooms;
 
   @override
@@ -114,7 +118,7 @@ class _loaiPhong extends StatelessWidget {
                     .setRoom(rooms.elementAt(index));
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  screen: const RoomInfoPage(),
+                  screen: RoomInfoPage(ngayDen: _ngDen, ngayDi: _ngDi),
                   withNavBar: false, // OPTIONAL VALUE. True by default.
                   pageTransitionAnimation: PageTransitionAnimation.cupertino,
                 );

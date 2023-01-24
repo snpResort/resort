@@ -21,6 +21,7 @@ import 'package:resort/home_page/screen/home_page.dart';
 import 'package:resort/home_page/screen/room_info_page.dart';
 import 'package:resort/home_page/screen/room_search.dart';
 import 'package:resort/home_page/screen/rooms_info.dart';
+import 'package:resort/user_page/screen/change_password_user.dart';
 import 'package:resort/user_page/screen/history_booked_page.dart';
 import 'package:resort/user_page/screen/user_info_page.dart';
 import 'package:resort/user_page/screen/user_page.dart';
@@ -107,12 +108,12 @@ class MyApp extends StatelessWidget {
           VerifyPage.id: (context) => VerifyPage(),
           ChangePassword.id: (context) => const ChangePassword(),
           RegisterInfo.id: (context) => const RegisterInfo(),
-          RoomInfoPage.id: (context) => const RoomInfoPage(),
+          RoomInfoPage.id: (context) => RoomInfoPage(),
           UserInfoPage.id: (context) => const UserInfoPage(),
           RoomsInfo.id: (context) => const RoomsInfo(),
           HistoryBooked.id: (context) => const HistoryBooked(),              
           RoomSearch.id: (context) => RoomSearch(),
-
+          ChangePasswordUser.id: (context) => const ChangePasswordUser(),
         },
       ),
     );
@@ -130,18 +131,6 @@ PersistentTabController controllerPersistent = PersistentTabController(initialIn
 bool isUpdateBottomBar = false;
 
 class _AppState extends State<App> {
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    // check login
-    if (DBUser.hasLogin()) {
-      print('login');
-      print(DBUser.getUser().toString());
-      Provider.of<PUser>(context, listen: false).login(DBUser.getUser()!);
-    }
-  }
 
   @override
   void didChangeDependencies() {
@@ -188,7 +177,7 @@ class _AppState extends State<App> {
               RegisterInfo.id: (context) => const RegisterInfo(),
               RoomsInfo.id: (context) => const RoomsInfo(),
               RoomSearch.id: (context) => RoomSearch(),
-              RoomInfoPage.id: (context) => const RoomInfoPage(),
+              RoomInfoPage.id: (context) => RoomInfoPage(),
             },
           ),
         ),
@@ -245,6 +234,7 @@ class _AppState extends State<App> {
               routes: {
                 UserInfoPage.id: (context) => const UserInfoPage(),
                 HistoryBooked.id: (context) => const HistoryBooked(),
+                ChangePasswordUser.id: (context) => const ChangePasswordUser(),
               },
             ),
           ),
@@ -255,7 +245,11 @@ class _AppState extends State<App> {
     }
   @override
   Widget build(BuildContext context) {
-
+    if (DBUser.hasLogin() && Provider.of<PUser>(context, listen: false).user == null) {
+      print('login');
+      print(DBUser.getUser().toString());
+      Provider.of<PUser>(context, listen: false).login(DBUser.getUser()!);
+    }
     
 
     print('----------------------- reset: ${_navBarsItems(context).length} ');

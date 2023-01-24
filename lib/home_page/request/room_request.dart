@@ -35,18 +35,20 @@ Future<List<Room>?> roomRequest() async {
             ..id = _room['Id']
             ..tenPhong = _room['TenPhong']);
         }
+        print('-- roomInfo: $roomInfo');
 
         for (var rate in room['Rate']) {
           rates.add(Rate()
             ..ngTao = DateTime.parse(rate['NgayTao'])
-            ..binhChon = rate['BinhChon']
+            ..binhChon = double.parse(rate['BinhChon'].toString())
             ..binhLuan = rate['BinhLuan']
             ..userInfo = User.info(
               hoTen: rate['user_info']['HoTen'],
-              avt: '',
+              avt: rate['user_info']['AnhDaiDien'] ?? '',
               idTK: rate['user_info']['Id_tk'],
             ));
         }
+        print('-- rates: $rates');
 
         for (var booked in room['NgayDaDat']) {
           ngatDaDat.add(DateBook()

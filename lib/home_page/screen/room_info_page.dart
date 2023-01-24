@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
+import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/cart_page/screen/cart_page.dart';
 import 'package:resort/constant/app_string.dart';
@@ -20,20 +21,24 @@ import 'package:resort/home_page/model/date_book.dart';
 import 'package:resort/home_page/model/info_book.dart';
 import 'package:resort/home_page/model/room.dart';
 import 'package:resort/home_page/repository/p_room.dart';
+import 'package:resort/home_page/request/comment_request.dart';
 import 'package:resort/home_page/request/room_request.dart';
 import 'package:resort/home_page/screen/home_page.dart';
 import 'package:resort/main.dart';
 import 'package:resort/widgets/calendar_custom.dart';
 import 'package:resort/widgets/gradient_mask.dart';
 import 'package:resort/widgets/loading_widget.dart';
+import 'package:resort/widgets/message_alert.dart';
 import 'package:resort/widgets/success_alert.dart';
 import 'package:resort/widgets/warning_alert.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
 class RoomInfoPage extends StatefulWidget {
-  const RoomInfoPage({super.key});
+  RoomInfoPage({super.key, this.ngayDen, this.ngayDi});
 
   static String id = 'RoomInfoPage';
+  DateTime? ngayDen;
+  DateTime? ngayDi;
 
   @override
   State<RoomInfoPage> createState() => _RoomInfoPageState();
@@ -42,8 +47,8 @@ class RoomInfoPage extends StatefulWidget {
 class _RoomInfoPageState extends State<RoomInfoPage> {
   final oCcyStar = NumberFormat("#.#");
   final oCcyMoney = NumberFormat("#,##0");
-  DateTime _ngayDen = DateTime.now();
-  DateTime _ngayDi = DateTime.now().add(Duration(days: 1));
+  late DateTime _ngayDen;
+  late DateTime _ngayDi;
   int _soLuongNguoi = 1;
   int _soLuongNguoiLon = 1;
   int _soLuongTreEm = 0;
@@ -57,11 +62,27 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
   late Room roomInfo;
   PRoom? pRoom;
 
+  PUser? puser;
+  
+  var _commentController = TextEditingController();
+  
+  double _rate = 2.5;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _ngayDen = widget.ngayDen ?? DateTime.now();
+    _ngayDi = widget.ngayDi ?? DateTime.now().add(Duration(days: 1));
+  }
+
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     roomInfo = Provider.of<PRoom>(context, listen: true).room!;
+
+    puser = Provider.of<PUser>(context, listen: true);
   }
 
   @override
@@ -534,17 +555,17 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
               
                                                 // Todo: check room exists
                                                 if (_isKhacNgay || _isRoomExists) {
-                                                  warningAlert(
+                                                  messageAlert(
                                                     context,
                                                     _isKhacNgay
                                                         ? "Thời gian đặt phòng có sự thay đổi, bạn có muốn làm mới giỏ hàng"
                                                         : 'Phòng này đã có trong giỏ hàng bạn có muốn thay đổi?',
-                                                    onCancel: () {
+                                                    onPressCancel: () {
                                                       setState(() {
                                                         _isLoad = false;
                                                       });
                                                     },
-                                                    onOK: () {
+                                                    onPressOK: () {
                                                       if (_isKhacNgay) {
                                                         Provider.of<PRoom>(
                                                           context,
@@ -776,17 +797,17 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
               
                                                 // Todo: check room exists
                                                 if (_isKhacNgay || _isRoomExists) {
-                                                  warningAlert(
+                                                  messageAlert(
                                                     context,
                                                     _isKhacNgay
                                                         ? "Thời gian đặt phòng có sự thay đổi, bạn có muốn làm mới giỏ hàng"
                                                         : 'Phòng này đã có trong giỏ hàng bạn có muốn thay đổi?',
-                                                    onCancel: () {
+                                                    onPressCancel: () {
                                                       setState(() {
                                                         _isLoad = false;
                                                       });
                                                     },
-                                                    onOK: () {
+                                                    onPressOK: () {
                                                       if (_isKhacNgay) {
                                                         Provider.of<PRoom>(
                                                           context,
@@ -861,16 +882,17 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                             .toList());
               
                                                       Future.delayed(const Duration(
-                                                              milliseconds: 1000))
+                                                              milliseconds: 500))
                                                           .then(
                                                         (value) async {
-                                                          await succesAlert(
+                                                          succesAlert(
                                                             context,
                                                             'Cập nhật thành công',
                                                           );
               
-                                                          controllerPersistent
-                                                              .jumpToTab(2);
+                                                          controllerPersistent.jumpToTab(2);
+                                                          Navigator.of(context).pop();
+
                                                           setState(() {
                                                             _isLoad = false;
                                                           });
@@ -1204,7 +1226,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                             .toSet()
                                                             .length ==
                                                         roomInfo.soLuongPhong) {
-                                                  ackAlert(
+                                                  messageAlert(
                                                     context,
                                                     'Tìm không thấy phòng trống',
                                                   );
@@ -1212,7 +1234,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                   if (_soLuongNguoi >
                                                       roomInfo.soNgLon +
                                                           roomInfo.soTreEm) {
-                                                    ackAlert(
+                                                    messageAlert(
                                                       context,
                                                       'Số lượng người không phù hợp',
                                                     );
@@ -1240,7 +1262,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
               
                                                     if (flagCheckSumRoom ==
                                                         roomInfo.soLuongPhong) {
-                                                      ackAlert(
+                                                      messageAlert(
                                                         context,
                                                         'Tìm không thấy phòng trống',
                                                       );
@@ -1257,7 +1279,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                   if (_soLuongPhong >
                                                       roomInfo.soLuongPhong -
                                                           maxCountRoom) {
-                                                    ackAlert(
+                                                    messageAlert(
                                                       context,
                                                       'Số lượng phòng trống không đủ',
                                                     );
@@ -1300,7 +1322,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                   alignment: Alignment.center,
                                   margin: EdgeInsets.symmetric(vertical: 15),
                                   child: RatingBar.builder(
-                                    initialRating: 2.5,
+                                    initialRating: _rate,
                                     minRating: 0,
                                     direction: Axis.horizontal,
                                     allowHalfRating: true,
@@ -1311,7 +1333,9 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                       color: Colors.amber,
                                     ),
                                     onRatingUpdate: (rating) {
-                                      print(rating);
+                                      setState(() {
+                                        _rate = rating;
+                                      });
                                     },
                                   )
                                 ),
@@ -1329,7 +1353,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                           textInputAction: TextInputAction.newline,
                                           keyboardType: TextInputType.multiline,
                                           maxLines: null,
-                                          // controller: commentController,
+                                          controller: _commentController,
                                           style: TextStyle(
                                             fontSize: _width / 20,
                                             fontWeight: FontWeight.w400,
@@ -1369,8 +1393,45 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                       ),
                                       const SizedBox(width: 5),
                                       GestureDetector(
-                                        onTap: () {
+                                        onTap: () async {
                                           FocusManager.instance.primaryFocus?.unfocus();
+                                          if (_commentController.text.length <= 50) {
+                                            messageAlert(context, 'Vui lòng nhập bình luận hơn 50 kí tự');
+                                          } else {
+                                            setState(() {
+                                              isLoadData = true;
+                                            });
+
+                                            User _user = puser!.user!;
+                                            print('---- user_id: ${_user.idTK}');
+                                            print('---- room_id: ${roomInfo.id}');
+                                            print('---- rate: $_rate');
+                                            print('---- comment: ${_commentController.text}');
+                                            
+                                            // todo: save db and reload data
+                                            final rs = await comment(user_id: _user.idTK, room_id: roomInfo.id, comment: _commentController.text, rate: _rate);
+                                            if (rs.hasError!) {
+                                              messageAlert(context, rs.message!);
+                                              setState(() {
+                                                isLoadData = false;
+                                              });
+                                            } else {
+                                              // todo: reload data 
+                                              _commentController.clear();
+                                              _rate = 2.5;
+
+                                              roomRequest().then((value) {
+                                                final pRoom = Provider.of<PRoom>(context, listen: false);
+                                                final room = value!.firstWhere((element) => element.ten == roomInfo.ten);
+                                                pRoom.setRooms(value);
+                                                pRoom.setRoom(room);
+                                
+                                                setState(() {
+                                                  isLoadData = false;
+                                                });
+                                              });
+                                            }
+                                          }
                                         },
                                         child: Container(
                                           padding: EdgeInsets.all(10),

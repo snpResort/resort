@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:resort/constant/app_string.dart';
+import 'package:resort/widgets/loading_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -133,17 +134,22 @@ class _AboutPageState extends State<AboutPage> {
                       width: _width,
                       height: 250,
                       color: Colors.transparent,
-                      child: WebView(
-                        backgroundColor: Colors.transparent,
-                        initialUrl: Uri.dataFromString('''
-                          <html>
-                            <body>
-                              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1093.4684531735024!2d106.6285649782913!3d10.806107889467654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752be27d8b4f4d%3A0x92dcba2950430867!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBDw7RuZyBuZ2hp4buHcCBUaOG7sWMgcGjhuqltIFRQLkhDTQ!5e0!3m2!1svi!2s!4v1669392420559!5m2!1svi!2s" width="100%" height="500" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                            </body>
-                          </html>
-                          ''', mimeType: 'text/html').toString(),
-                        javascriptMode: JavascriptMode.unrestricted,
-                      ),
+                      child: Stack(
+                        children: [
+                          Center(child: LoadingWidget(color: Colors.orange,),),
+                          WebView(
+                            backgroundColor: Colors.transparent,
+                            initialUrl: Uri.dataFromString('''
+                              <html>
+                                <body>
+                                  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1093.4684531735024!2d106.6285649782913!3d10.806107889467654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752be27d8b4f4d%3A0x92dcba2950430867!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBDw7RuZyBuZ2hp4buHcCBUaOG7sWMgcGjhuqltIFRQLkhDTQ!5e0!3m2!1svi!2s!4v1669392420559!5m2!1svi!2s" width="100%" height="500" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </body>
+                              </html>
+                              ''', mimeType: 'text/html').toString(),
+                            javascriptMode: JavascriptMode.unrestricted,
+                          ),
+                        ],
+                      )
                     ),
                   ],
                 ),
