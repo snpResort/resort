@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/user_page/request/history_book_request.dart';
+import 'package:resort/user_page/screen/booked_info_page.dart';
+import 'package:resort/widgets/loading_widget.dart';
+import 'package:resort/widgets/message_alert.dart';
 import 'package:resort/widgets/wrong_alert.dart';
 
 class HistoryBooked extends StatefulWidget {
@@ -30,6 +33,7 @@ class _HistoryBookedState extends State<HistoryBooked> {
   @override
   Widget build(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
+    final _height = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -46,40 +50,42 @@ class _HistoryBookedState extends State<HistoryBooked> {
           ),
         ),
         title: Text(
-          'Lịch sự đặt phòng',
+          'Lịch sử đặt phòng',
           style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(Duration(milliseconds: 1000));
-          setState(() {});
-        },
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              FutureBuilder(
-                future: historyBookedRoom(userID: user!.idTK),
-                builder: (context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasError) {
-                    ackAlert(context, 'Đã có lỗi xảy ra');
-                    return SizedBox();
-                  } else if (!snapshot.hasData) {
-                    return Container(
-                      margin: EdgeInsets.only(top: 10),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index) {
-                      final bookInfo = snapshot.data[index];
-                      return Container(
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            FutureBuilder(
+              future: historyBookedRoom(userID: user!.idTK),
+              builder: (context, AsyncSnapshot snapshot) {
+                if (snapshot.hasError) {
+                  messageAlert(context, 'Đã có lỗi xảy ra');
+                  return SizedBox();
+                } else if (!snapshot.hasData) {
+                  return Container(
+                    width: _width,
+                    height: _height,
+                    child: Center(
+                      child: LoadingWidget(color: Colors.yellow.shade700),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) {
+                    final bookInfo = snapshot.data[index];
+                    return GestureDetector(
+                      onTap:() {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => BookedInfoPage(bookInfo: bookInfo,),)
+                        );
+                      },
+                      child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black26, width: .5),
                           borderRadius: BorderRadius.circular(14),
@@ -93,26 +99,13 @@ class _HistoryBookedState extends State<HistoryBooked> {
                           children: [
                             Container(
                               alignment: Alignment.centerLeft,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${bookInfo['TenLoaiPhong']}',
-                                    style: TextStyle(
-                                      fontSize: _width / 18,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${bookInfo['Id']}',
-                                    style: TextStyle(
-                                      fontSize: _width / 18,
-                                      color: Colors.orange,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ],
+                              child: Text(
+                                '${bookInfo['Id']}',
+                                style: TextStyle(
+                                  fontSize: _width / 18,
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.w400,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 15),
@@ -144,13 +137,13 @@ class _HistoryBookedState extends State<HistoryBooked> {
                                             Text(
                                               'Ngày đến',
                                               style: TextStyle(
-                                                fontSize: _width / 25,
+                                                fontSize: (_width - 40) / 25,
                                               ),
                                             ),
                                             Text(
                                               '${DateFormat('dd/MM/yyyy').format(DateTime.parse(bookInfo['NgayDat']))}',
                                               style: TextStyle(
-                                                fontSize: _width / 20,
+                                                fontSize: (_width - 40) / 20,
                                               ),
                                             )
                                           ],
@@ -175,13 +168,13 @@ class _HistoryBookedState extends State<HistoryBooked> {
                                             Text(
                                               'Ngày đi',
                                               style: TextStyle(
-                                                fontSize: _width / 25,
+                                                fontSize: (_width - 40) / 25,
                                               ),
                                             ),
                                             Text(
                                               '${DateFormat('dd/MM/yyyy').format(DateTime.parse(bookInfo['NgayTra']))}',
                                               style: TextStyle(
-                                                fontSize: _width / 20,
+                                                fontSize: (_width - 40) / 20,
                                               ),
                                             )
                                           ],
@@ -193,20 +186,97 @@ class _HistoryBookedState extends State<HistoryBooked> {
                               ),
                             ),
                             const SizedBox(height: 20),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Danh sách phòng',
+                                style: TextStyle(fontSize: (_width - 40) / 19),
+                              ),
+                            ),
+                            const SizedBox(height: 10,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    'Phòng',
+                                    style: TextStyle(fontSize: (_width - 40) / 21),
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                Expanded(
+                                  child: Text(
+                                    'Số lượng',
+                                    style: TextStyle(fontSize: (_width - 40) / 21),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      'Giá',
+                                      style: TextStyle(fontSize: (_width - 40) / 21),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: bookInfo['ChiTiet'].length,
+                              itemBuilder: (context, index) {
+                                final ct = bookInfo['ChiTiet'];
+                                var _soNgayO = DateTime.parse(bookInfo['NgayTra']).difference(DateTime.parse(bookInfo['NgayDat'])).inDays + 1;
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        '${ct[index]['TenLoai']}',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: (_width - 40) / 21),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: Text(
+                                        '${ct[index]['SoLuong']}',
+                                        style: TextStyle(fontSize: (_width - 40) / 21),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Container(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          '${oCcyMoney.format(ct[index]['Gia'] * ct[index]['SoLuong'] * _soNgayO)} ₫',
+                                          style: TextStyle(fontSize: (_width - 40) / 21),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Tổng giá phòng',
                                   style: TextStyle(
-                                    fontSize: _width / 20,
+                                    fontSize: (_width - 40) / 19,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
                                 Text(
                                   '${oCcyMoney.format(bookInfo['DonGia'])} ₫',
                                   style: TextStyle(
-                                    fontSize: _width / 15,
+                                    fontSize: (_width - 40) / 15,
                                     fontWeight: FontWeight.w400,
                                     color: Colors.green.shade700,
                                   ),
@@ -215,14 +285,14 @@ class _HistoryBookedState extends State<HistoryBooked> {
                             ),
                           ],
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
-              const SizedBox(height: 60),
-            ],
-          ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 60),
+          ],
         ),
       ),
     );

@@ -6,6 +6,8 @@ import 'package:resort/constant/app_string.dart';
 Future<List<dynamic>> historyBookedRoom({required String userID}) async {
   final String path = '/room/getHistoryBooked?userID=$userID';
 
+  print('run $path');
+
   Response response = await get(
     Uri.parse('$kUrlServer$path'),
   );

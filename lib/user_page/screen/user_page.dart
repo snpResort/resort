@@ -12,12 +12,15 @@ import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/db_user.dart';
 import 'package:resort/auth/repository/p_user.dart';
+import 'package:resort/auth/request/login_request.dart';
 import 'package:resort/constant/app_string.dart';
 import 'package:resort/main.dart';
 import 'package:resort/user_page/request/user_request.dart';
+import 'package:resort/user_page/screen/change_password_user.dart';
 import 'package:resort/user_page/screen/history_booked_page.dart';
 import 'package:resort/user_page/screen/user_info_page.dart';
 import 'package:resort/widgets/loading_widget.dart';
+import 'package:resort/widgets/message_alert.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -39,22 +42,18 @@ class _UserPageState extends State<UserPage> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     Provider.of<PUser>(context, listen: false);
-  }
-  @override
-  void deactivate() {
-    // TODO: implement deactivate
-    super.deactivate();
 
-    Provider.of<PUser>(context, listen: false);
-  }
-  @override
-  Widget build(BuildContext context) {
+    
     isLogin = Provider.of<PUser>(context).isLogin;
     _user = isLogin ? Provider.of<PUser>(context).user : null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     print(DBUser.getUser().toString());
 
-    print('_user: ${_user!.avt}');
+    print('------------ loading: $_isload');
 
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
@@ -74,12 +73,16 @@ class _UserPageState extends State<UserPage> {
         File file = File(_imageFile!.path);
         final base64Image = base64Encode(file.readAsBytesSync());
         final image = await updateAvatar(base64: base64Image, userID: _user!.idTK);
+        final reloadUser = await loginRequest(username: _user!.username, password: _user!.password);
         setState(() {
           _isload = false;
         });
-        print('image: $image');
-        _user!.avt = image;
-        Provider.of<PUser>(context!, listen: false).setAVT(_user!);
+        if (reloadUser != null) {
+          Provider.of<PUser>(context!, listen: false).login(reloadUser);
+        }
+        print('-------- image: $image');
+        // _user!.avt = image;
+        // Provider.of<PUser>(context!, listen: false).setAVT(_user!);
         
       } catch (e) {
         print(e);
@@ -110,7 +113,7 @@ class _UserPageState extends State<UserPage> {
           children: [
             Container(
               width: _width,
-              height: _width / 2.7,
+              height: _width / 2.45,
               color: Colors.blueGrey,
             ),
             Column(
@@ -401,14 +404,16 @@ class _UserPageState extends State<UserPage> {
           _buttonControl(
             title: 'Thay đổi mật khẩu',
             icon: CupertinoIcons.person_circle,
-            onClick: () {},
+            onClick: () {
+              Navigator.of(context).pushNamed(ChangePasswordUser.id);
+            },
           ),
-          _dividerControl,
-          _buttonControl(
-            title: 'Mã khuyến mãi của tôi',
-            icon: CupertinoIcons.gift,
-            onClick: () {},
-          ),
+          // _dividerControl,
+          // _buttonControl(
+          //   title: 'Mã khuyến mãi của tôi',
+          //   icon: CupertinoIcons.gift,
+          //   onClick: () {},
+          // ),
           _dividerControl,
           _buttonControl(
             title: 'Lịch sử',
@@ -430,9 +435,20 @@ class _UserPageState extends State<UserPage> {
     Widget _buttonSignout = Container(
       child: ListTile(
         onTap: () {
-          Provider.of<PUser>(context, listen: false).signout();
-          isUpdateBottomBar = true;
-          RestartWidget.restartApp(context);
+          messageAlert(
+            context, 
+            'Bạn có muốn đăng xuất?',
+            color: Colors.blue.shade400,
+            onPressOK: () {
+              Provider.of<PUser>(context, listen: false).signout();
+              isUpdateBottomBar = true;
+              RestartWidget.restartApp(context);
+            },
+            onPressCancel: () {
+
+            }
+          );
+          
         },
         title: Align(
           child: Text(
