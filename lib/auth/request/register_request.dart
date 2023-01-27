@@ -74,6 +74,53 @@ Future<RegisterResponse> RegisterRequest({required User user}) async {
     "ngaySinh": "${DateFormat('yyyy-MM-dd').format(user.ngaySinh)}",
     "cccd": "${user.canCuoc}",
     "email": "${user.email}",
+    "gioiTinh":"${user.gioiTinh.toUpperCase()}",
+    "sdt": "${user.sdt.replaceAll(' ', '')}",
+    "diaChi": "${user.diaChi}"
+  };
+
+  print('------------ json data register: $jsonData');
+
+  Response response = await post(
+    Uri.parse('$kUrlServer$path'),
+    headers: headers,
+    body: jsonEncode(jsonData),
+  );
+
+  try {
+    var body = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return result
+        ..hasData = true
+        ..hasError = false
+        ..message = body['Message'];
+    }
+    return result
+      ..hasData = false
+      ..hasError = true
+      ..message = body['Message'];
+  } catch (e) {
+    return result
+      ..hasData = false
+      ..hasError = true
+      .. message = e.toString();
+  }
+}
+
+Future<RegisterResponse> EditInfoUser({required User user}) async {
+  final String path = '/auth/editInfoUser';
+  RegisterResponse result = RegisterResponse();
+
+  Map<String, String> headers = {"Content-type": "application/json"};
+  // String json =
+  //     '{"username": "${user.username}","password": "${user.password}","hoTen": "${user.hoTen}","ngaySinh": "${DateFormat('yyyy-MM-dd').format(user.ngaySinh)}","cccd": "${user.canCuoc}","email": "${user.email}","sdt": "${user.sdt.replaceAll(' ', '')}","diaChi": "${user.diaChi}"}';
+
+  final jsonData = {
+    "username": "${user.username}",
+    "hoTen": "${user.hoTen}",
+    "ngaySinh": "${DateFormat('yyyy-MM-dd').format(user.ngaySinh)}",
+    "cccd": "${user.canCuoc}",
+    "gioiTinh":"${user.gioiTinh.toUpperCase()}",
     "sdt": "${user.sdt.replaceAll(' ', '')}",
     "diaChi": "${user.diaChi}"
   };

@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
@@ -18,6 +20,7 @@ import 'package:resort/main.dart';
 import 'package:resort/user_page/request/user_request.dart';
 import 'package:resort/user_page/screen/change_password_user.dart';
 import 'package:resort/user_page/screen/history_booked_page.dart';
+import 'package:resort/user_page/screen/upgrade_rank_page.dart';
 import 'package:resort/user_page/screen/user_info_page.dart';
 import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/message_alert.dart';
@@ -50,6 +53,11 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.light,
+    ));
 
     print(DBUser.getUser().toString());
 
@@ -133,7 +141,7 @@ class _UserPageState extends State<UserPage> {
                           ),
                         ),
                         CachedNetworkImage(
-                          imageUrl: _user!.avt,
+                          imageUrl: '${kUrlServer}/images/${_user!.avt}',
                           cacheKey: DateTime.now().toIso8601String(),
                           imageBuilder: (context, imageProvider) {
                             return Container(
@@ -276,7 +284,9 @@ class _UserPageState extends State<UserPage> {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(UpgradeRankPage.id);
+                  },
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all(
                       EdgeInsets.symmetric(horizontal: 15),
@@ -293,81 +303,14 @@ class _UserPageState extends State<UserPage> {
               ],
             ),
             const SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(
-                    offset: Offset(3, 4),
-                    blurRadius: 5,
-                    color: Colors.grey,
-                  )
-                ],
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    // Color.fromARGB(255, 192, 192, 192),
-                    // Color.fromARGB(255, 201, 201, 201),
-                    // Color.fromARGB(255, 211, 211, 211),
-                    Color.fromARGB(255, 199, 159, 48),
-                    Color.fromARGB(255, 185, 118, 29),
-                    Color.fromARGB(255, 129, 84, 0),
-                  ],
-                ),
-              ),
-              height: 240,
-              width: _width,
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          kLogoApp,
-                          width: 50,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'MOONLIGHT',
-                          style: TextStyle(
-                            fontSize: _width / 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          'COPPER',
-                          style: TextStyle(
-                            fontSize: _width / 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 28),
-                    Text(
-                      // Todo: change name user
-                      _user!.hoTen,
-                      style: TextStyle(
-                        fontSize: _width / 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      // Todo: change code
-                      _user!.idTK,
-                      style: TextStyle(
-                        fontSize: _width / 13,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            if (_user!.member.loaiThanhVien == 'ĐỒNG')
+            CopperRank(width: _width, user: _user),
+            if (_user!.member.loaiThanhVien == 'BẠC')
+            SilverRank(width: _width, user: _user),
+            if (_user!.member.loaiThanhVien == 'VÀNG')
+            GoldRank(width: _width, user: _user),
+            if (_user!.member.loaiThanhVien == 'KIM CƯƠNG')
+            DiamondRank(width: _width, user: _user),
             const SizedBox(height: 20),
 
             // Container(
@@ -471,45 +414,625 @@ class _UserPageState extends State<UserPage> {
           fit: BoxFit.cover,
           height: 165,
         ),
-        SafeArea(
-          child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: _width,
+        RefreshIndicator(
+          onRefresh: () async { 
+            setState(() {
+              _isload = true;
+            });
+            final reloadUser = await loginRequest(username: _user!.username, password: _user!.password);
+            if (reloadUser != null) {
+              Provider.of<PUser>(context, listen: false).login(reloadUser);
+            }
+            setState(() {
+              _isload = false;
+            });
+            return Future.delayed(Duration(milliseconds: 500));
+          },
+          child: SafeArea(
+            child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: _width,
+                      color: Colors.white,
+                    ),
+                    Column(
+                      children: [
+                        const SizedBox(height: 45),
+                        _userInformation,
+                        _thanhVien,
+                        _divider,
+                        _control,
+                        _divider,
+                        _buttonSignout,
+                        Divider(
+                          thickness: 50,
+                          height: 50.5,
+                          color: Colors.grey.shade300,
+                        ),
+                        const SizedBox(height: 55),
+                      ],
+                    ),
+                  ],
+                )),
+          ),
+        ),
+        if (_isload) 
+          Container(
+            height: _height,
+            width: _width,
+            color: Colors.black54,
+            child: LoadingWidget(),
+          )
+      ],
+    );
+  }
+}
+
+class CopperRank extends StatelessWidget {
+  const CopperRank({
+    Key? key,
+    required double width,
+    required User? user,
+  }) : _width = width, _user = user, super(key: key);
+
+  final double _width;
+  final User? _user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            offset: Offset(3, 4),
+            blurRadius: 5,
+            color: Colors.grey,
+          )
+        ],
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomCenter,
+          colors: [
+            // Color.fromARGB(255, 192, 192, 192),
+            // Color.fromARGB(255, 201, 201, 201),
+            // Color.fromARGB(255, 211, 211, 211),
+            Color.fromARGB(255, 199, 159, 48),
+            Color.fromARGB(255, 185, 118, 29),
+            Color.fromARGB(255, 129, 84, 0),
+          ],
+        ),
+      ),
+      height: 240,
+      width: _width,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  kLogoApp,
+                  width: 50,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'MOONLIGHT',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
                     color: Colors.white,
                   ),
+                ),
+                const Spacer(),
+                Text(
+                  'COPPER',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 25),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 45),
-                      _userInformation,
-                      _thanhVien,
-                      _divider,
-                      _control,
-                      _divider,
-                      _buttonSignout,
-                      Divider(
-                        thickness: 50,
-                        height: 50.5,
-                        color: Colors.grey.shade300,
+                      Text(
+                        // Todo: change name user
+                        _user!.hoTen,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 17,
+                          color: Colors.white,
+                        ),
                       ),
-                      const SizedBox(height: 55),
+                      Text(
+                        // Todo: change code
+                        _user!.idTK,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 15,
+                          color: Colors.white,
+                        ),
+                      ),
                     ],
                   ),
-                  if (_isload) 
-                  Container(
-                    height: _height,
-                    width: _width,
-                    color: Colors.black54,
-                    child: LoadingWidget(),
-                  )
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'MEMBER SINCE',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 18,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                      
+                    ],
+                  ),
                 ],
-              )),
-        )
-      ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SilverRank extends StatelessWidget {
+  const SilverRank({
+    Key? key,
+    required double width,
+    required User? user,
+  }) : _width = width, _user = user, super(key: key);
+
+  final double _width;
+  final User? _user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            offset: Offset(3, 4),
+            blurRadius: 5,
+            color: Colors.grey,
+          )
+        ],
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomCenter,
+          colors: [
+            // Color.fromARGB(255, 192, 192, 192),
+            // Color.fromARGB(255, 201, 201, 201),
+            // Color.fromARGB(255, 211, 211, 211),
+            Color.fromARGB(255, 200, 200, 200),
+            Color.fromARGB(255, 185, 185, 185),
+            Color.fromARGB(255, 140, 140, 140),
+          ],
+        ),
+      ),
+      height: 240,
+      width: _width,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  kLogoApp,
+                  width: 50,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'MOONLIGHT',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'SIVLER',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 25),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        // Todo: change name user
+                        _user!.hoTen,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 17,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        // Todo: change code
+                        _user!.idTK,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 15,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'MEMBER SINCE',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 18,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(width: 35,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'VALID THRU',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao.add(Duration(days: 365)))}',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 18,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GoldRank extends StatelessWidget {
+  const GoldRank({
+    Key? key,
+    required double width,
+    required User? user,
+  }) : _width = width, _user = user, super(key: key);
+
+  final double _width;
+  final User? _user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            offset: Offset(3, 4),
+            blurRadius: 5,
+            color: Colors.grey,
+          )
+        ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomCenter,
+          colors: [
+            // Color.fromARGB(255, 192, 192, 192),
+            // Color.fromARGB(255, 201, 201, 201),
+            // Color.fromARGB(255, 211, 211, 211),
+            Color(0xffc79938),
+            Color(0xffcfa64c),
+            Color(0xffd3ae57),
+          ],
+        ),
+      ),
+      height: 240,
+      width: _width,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  kLogoApp,
+                  width: 50,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'MOONLIGHT',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'GOLD',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 25),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        // Todo: change name user
+                        _user!.hoTen,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 17,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        // Todo: change code
+                        _user!.idTK,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 15,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'MEMBER SINCE',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 18,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(width: 35,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'VALID THRU',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao.add(Duration(days: 365)))}',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 18,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DiamondRank extends StatelessWidget {
+  const DiamondRank({
+    Key? key,
+    required double width,
+    required User? user,
+  }) : _width = width, _user = user, super(key: key);
+
+  final double _width;
+  final User? _user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            offset: Offset(3, 4),
+            blurRadius: 5,
+            color: Colors.grey,
+          )
+        ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomCenter,
+          colors: [
+            // Color.fromARGB(255, 192, 192, 192),
+            // Color.fromARGB(255, 201, 201, 201),
+            // Color.fromARGB(255, 211, 211, 211),
+            Colors.black87,
+            Colors.black45,
+            Colors.black26,
+          ],
+        ),
+      ),
+      height: 240,
+      width: _width,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  kLogoApp,
+                  width: 50,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'MOONLIGHT',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
+                    color: Color(0xffcfb775),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'DIAMOND',
+                  style: TextStyle(
+                    fontSize: (_width - 15) / 18,
+                    color: Color(0xffcfb775),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 25),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        // Todo: change name user
+                        _user!.hoTen,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 17,
+                          color: Color(0xffcfb775),
+                        ),
+                      ),
+                      Text(
+                        // Todo: change code
+                        _user!.idTK,
+                        style: TextStyle(
+                          fontSize: (_width - 15) / 15,
+                          color: Color(0xffcfb775),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'MEMBER SINCE',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 25,
+                              color: Color(0xffcfb775),
+                            ),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 18,
+                              color: Color(0xffcfb775),
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(width: 35,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'VALID THRU',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 25,
+                              color: Color(0xffcfb775),
+                            ),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao.add(Duration(days: 365)))}',
+                            style: TextStyle(
+                              fontSize: (_width - 15) / 18,
+                              color: Color(0xffcfb775),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -399,7 +399,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                         Text(
                                                           '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
                                                           style: TextStyle(
-                                                            fontSize: _width / 20,
+                                                            fontSize: (_width - 25) / 20,
                                                           ),
                                                         )
                                                       ],
@@ -430,7 +430,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                         Text(
                                                           '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
                                                           style: TextStyle(
-                                                            fontSize: _width / 20,
+                                                            fontSize: (_width - 25) / 20,
                                                           ),
                                                         )
                                                       ],
@@ -970,7 +970,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                 await Future.delayed(Duration(milliseconds: 800));
     
                                                 controllerPersistent.jumpToTab(2);
-                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop(true);
                                                 setState(() {
                                                   _hasRoom = false;
                                                 });
@@ -1077,8 +1077,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                               Text(
                                                                 '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
                                                                 style: TextStyle(
-                                                                  fontSize:
-                                                                      _width / 20,
+                                                                  fontSize: (_width - 25) / 20,
                                                                 ),
                                                               )
                                                             ],
@@ -1113,8 +1112,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
                                                               Text(
                                                                 '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
                                                                 style: TextStyle(
-                                                                  fontSize:
-                                                                      _width / 20,
+                                                                  fontSize: (_width - 25) / 20,
                                                                 ),
                                                               )
                                                             ],

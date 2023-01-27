@@ -31,6 +31,7 @@ class _RoomsInfoState extends State<RoomsInfo> {
 
     roomRequest().then((value) {
       print('==================== vale: $value');
+      Provider.of<PRoom>(context, listen: false).setRooms(value??[]);
       setState(() {
         isLoad = false;
         try {

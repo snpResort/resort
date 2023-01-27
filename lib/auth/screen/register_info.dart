@@ -222,11 +222,10 @@ class _RegisterInfoState extends State<RegisterInfo> {
                             _user!
                               ..hoTen = _txtHoTen.text
                               ..canCuoc = _txtCCCD.text
-                              ..ngaySinh =
-                                  DateFormat('dd/MM/yyyy').parse(_txtNgaySinh.text)
+                              ..ngaySinh = DateFormat('dd/MM/yyyy').parse(_txtNgaySinh.text)
                               ..email = _user.username
                               ..diaChi = _txtDC.text
-                              ..sdt = _txtSDT.text
+                              ..sdt = _txtSDT.text.split(' ').join('').trim()
                               ..gioiTinh = _gioiTinh == GioiTinh.Nam ? 'Nam' : 'Nữ';
       
                             final rs = await RegisterRequest(user: _user);

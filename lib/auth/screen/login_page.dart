@@ -1,5 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/p_user.dart';
@@ -35,10 +36,19 @@ class ScreenLoginState extends State<ScreenLogin> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget logo = Center(
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width / 1.5,
-        child: const LogoApp(),
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.light,
+    ));
+    
+    final Widget logo = Hero(
+      tag: 'logo',
+      child: Center(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width / 1.5,
+          child: const LogoApp(),
+        ),
       ),
     );
     final Widget textFieldContent = Container(

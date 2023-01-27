@@ -121,7 +121,12 @@ class _loaiPhong extends StatelessWidget {
                   screen: RoomInfoPage(ngayDen: _ngDen, ngayDi: _ngDi),
                   withNavBar: false, // OPTIONAL VALUE. True by default.
                   pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                );
+                ).then((value) {
+                  if (value)
+                  {
+                    Navigator.of(context).pop();
+                  }
+                });
               },
               child: Container(
                 margin: EdgeInsets.symmetric(vertical: 18),

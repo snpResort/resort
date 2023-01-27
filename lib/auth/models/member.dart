@@ -17,10 +17,20 @@ class Member {
   @HiveField(3)
   late double khuyenMai;
 
+  @HiveField(4)
+  late int id;
+
   Member({
     required this.loaiThanhVien,
     required this.ngayTao,
     required this.ngayHetHan,
     required this.khuyenMai,
+    required this.id
   });
+
+
+  @override
+  String toString() {
+    return 'Member(loaiThanhVien: $loaiThanhVien, ngayTao: $ngayTao, ngayHetHan: $ngayHetHan, khuyenMai: $khuyenMai, id: $id)';
+  }
 }

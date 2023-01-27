@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:resort/constant/app_string.dart';
     
 class BookedInfoPage extends StatefulWidget {
@@ -16,13 +16,19 @@ class BookedInfoPage extends StatefulWidget {
 }
 
 class _BookedInfoPageState extends State<BookedInfoPage> {
-  final oCcyMoney = NumberFormat("#,##0");  
+  final oCcyMoney = NumberFormat("#,##0");
+  final oCcyFloat = NumberFormat("0.##");
+  
 
   @override
   Widget build(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
     var _soNgayO = DateTime.parse(widget.bookInfo['NgayTra']).difference(DateTime.parse(widget.bookInfo['NgayDat'])).inDays + 1;
+    int _totalPrice = (widget.bookInfo['ChiTiet'] as List).length == 1 
+      ?  int.parse(widget.bookInfo['ChiTiet'][0]['Gia'].toString()) * int.parse(widget.bookInfo['ChiTiet'][0]['SoLuong'].toString()) * _soNgayO
+      : (widget.bookInfo['ChiTiet'] as List).reduce((value, element) => (int.parse(value['Gia'].toString()) * int.parse(value['SoLuong'].toString()) * _soNgayO) + (int.parse(element['Gia'].toString()) * int.parse(element['SoLuong'].toString()) * _soNgayO));  
+    double _sale = (1 - widget.bookInfo['DonGia'] / _totalPrice) * 100 ;
 
     return Scaffold(
       appBar: AppBar(
@@ -289,61 +295,137 @@ class _BookedInfoPageState extends State<BookedInfoPage> {
                 children: [
                   Expanded(
                     flex: 3,
-                    child: Text(
-                      'Tổng',
-                      style: TextStyle(
-                        fontSize: (_width - 40) / 16,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    child: Column(
+                      children: [
+                        if (_sale != 0)
+                        Column(
+                          children: [
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Tổng',
+                                style: TextStyle(
+                                  fontSize: (_width - 40) / 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Giảm giá',
+                                style: TextStyle(
+                                  fontSize: (_width - 40) / 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Tổng hoá đơn',
+                            style: TextStyle(
+                              fontSize: (_width - 40) / 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
-                    child: Text(
-                      (widget.bookInfo['ChiTiet'] as List).length == 1 
-                        ? '${widget.bookInfo['ChiTiet'][0]['SoLuong']}'
-                        : '${(widget.bookInfo['ChiTiet'] as List).reduce((value, element) => value['SoLuong'] + element['SoLuong'])}',
-                      style: TextStyle(fontSize: (_width - 40) / 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        if (_sale != 0)
+                        Column(
+                          children: [
+                            Text(
+                              (widget.bookInfo['ChiTiet'] as List).length == 1 
+                                ? '${widget.bookInfo['ChiTiet'][0]['SoLuong']}'
+                                : '${(widget.bookInfo['ChiTiet'] as List).reduce((value, element) => value['SoLuong'] + element['SoLuong'])}',
+                              style: TextStyle(fontSize: (_width - 40) / 18),
+                            ),
+                            Text(
+                              ' ',
+                              style: TextStyle(
+                                fontSize: (_width - 40) / 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          (widget.bookInfo['ChiTiet'] as List).length == 1 
+                            ? '${widget.bookInfo['ChiTiet'][0]['SoLuong']}'
+                            : '${(widget.bookInfo['ChiTiet'] as List).reduce((value, element) => value['SoLuong'] + element['SoLuong'])}',
+                          style: TextStyle(fontSize: (_width - 40) / 18),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Container(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        '${oCcyMoney.format(widget.bookInfo['DonGia'])} ₫',
-                        style: TextStyle(
-                          fontSize: (_width - 40) / 15,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.green.shade700,
+                    child: Column(
+                      children: [
+                        if (_sale != 0)
+                        Column(
+                          children: [
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '${oCcyMoney.format(_totalPrice)} ₫',
+                                style: TextStyle(
+                                  decoration: TextDecoration.lineThrough,
+                                  fontSize: (_width - 40) / 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black38,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '${oCcyFloat.format(_sale)}%',
+                                style: TextStyle(
+                                  fontSize: (_width - 40) / 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.yellow.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                        Container(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '${oCcyMoney.format(widget.bookInfo['DonGia'])} ₫',
+                            style: TextStyle(
+                              fontSize: (_width - 40) / 15,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 30,),
               Container(
-                child: QrImage(
+                child: PrettyQr(
+                  image: AssetImage(kLogoApp),
+                  typeNumber: 3,
+                  size: 200,
                   data: '${widget.bookInfo['Id']}',
-                  version: QrVersions.auto,
-                  size: 240,
-                  gapless: false,
-                  embeddedImage: AssetImage(kLogoApp),
-                  embeddedImageStyle: QrEmbeddedImageStyle(
-                    size: Size(80, 80),
-                  ),
-                  errorStateBuilder: (cxt, err) {
-                    return Container(
-                      child: Center(
-                        child: Text(
-                          'Đã xảy ra lỗi!',
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                  errorCorrectLevel: QrErrorCorrectLevel.M,
+                  roundEdges: true,
+                )
               ),
               const SizedBox(height: 60,),
             ],

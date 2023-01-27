@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
@@ -107,6 +108,11 @@ class _HomePageState extends State<HomePage> {
     if (!isLoad) {
       favRoom.sort((a, b) => avg_rate(b.rates).compareTo(avg_rate(a.rates)));
     }
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.light,
+    ));
 
     return Stack(
       children: [
@@ -289,7 +295,7 @@ class _HomePageState extends State<HomePage> {
                                                         Text(
                                                           '${DateFormat('dd/MM/yyyy').format(_ngayDen)}',
                                                           style: TextStyle(
-                                                            fontSize: _width / 21,
+                                                            fontSize: (_width - 40) / 21,
                                                           ),
                                                         )
                                                       ],
@@ -320,7 +326,7 @@ class _HomePageState extends State<HomePage> {
                                                         Text(
                                                           '${DateFormat('dd/MM/yyyy').format(_ngayDi)}',
                                                           style: TextStyle(
-                                                            fontSize: _width / 21,
+                                                            fontSize: (_width - 40) / 21,
                                                           ),
                                                         )
                                                       ],

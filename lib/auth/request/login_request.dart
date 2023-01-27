@@ -42,6 +42,7 @@ Future<User?> loginRequest({
         idTK: info['Id_tk'],
         diemTichLuy: result['DiemTichLuy'],
         member: Member(
+          id: member['id'],
           loaiThanhVien: member['TenLoai'],
           ngayTao: DateTime.parse(member['NgayTao']),
           ngayHetHan: member['NgayHetHan'],

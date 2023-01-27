@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
@@ -14,6 +15,7 @@ import 'package:resort/cart_page/request/book_room.dart';
 import 'package:resort/cart_page/request/sale_request.dart';
 import 'package:resort/constant/app_string.dart';
 import 'package:resort/home_page/repository/p_room.dart';
+import 'package:resort/home_page/request/room_request.dart';
 import 'package:resort/main.dart';
 import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/message_alert.dart';
@@ -36,6 +38,7 @@ class _CartPageState extends State<CartPage>
   ScrollController _scrollController = ScrollController();
   bool isSale = false;
   double giaSale = 0;
+  double saleMemeber = 0;
   double sale = 0;
   double total = 0;
   int sumInvite = 0;
@@ -98,6 +101,7 @@ class _CartPageState extends State<CartPage>
 
     // isSale = pRoom!.infoBook.isEmpty;
     giaSale = total - total * sale;
+    saleMemeber = total * (user?.member.khuyenMai ?? 0);
 
     // if (pRoom!.infoBook.isEmpty) {
     //   _idSaleController.clear();
@@ -112,6 +116,12 @@ class _CartPageState extends State<CartPage>
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.light,
+    ));
+
     final _width = MediaQuery.of(context).size.width;
     final _heightAppBar = _width / 6.3;
     final _height = MediaQuery.of(context).size.height;
@@ -223,7 +233,7 @@ class _CartPageState extends State<CartPage>
                                                       Text(
                                                         '${DateFormat('dd/MM/yyyy').format(infoBook[index].ngayDat.timeCheckin!)}',
                                                         style: TextStyle(
-                                                          fontSize: _width / 20,
+                                                          fontSize: (_width - 20) / 20,
                                                         ),
                                                       )
                                                     ],
@@ -256,7 +266,7 @@ class _CartPageState extends State<CartPage>
                                                       Text(
                                                         '${DateFormat('dd/MM/yyyy').format(infoBook[index].ngayDat.timeCheckout!)}',
                                                         style: TextStyle(
-                                                          fontSize: _width / 20,
+                                                          fontSize: (_width - 20) / 20,
                                                         ),
                                                       )
                                                     ],
@@ -390,6 +400,7 @@ class _CartPageState extends State<CartPage>
                                           context,
                                           'Vui lòng nhập mã khuyến mãi'
                                         );
+                                        giaSale = total;
                                       }
                                       else if (khuyenMai == 0) {
                                         _idSaleController.clear();
@@ -397,18 +408,19 @@ class _CartPageState extends State<CartPage>
                                           context,
                                           'Mã giảm giá không phù hợp.\nVui lòng kiểm tra lại',
                                         );
+                                        giaSale = total;
+                                      } else {
+                                        setState(() {
+                                          isSale = true;
+                                          sale = khuyenMai;
+                                          giaSale = total - total * sale;
+                                          _idSaleController.clear();
+                                        });
+                                        print('khuyenMai-- $khuyenMai');
                                       }
                                       setState(() {
-                                        isSale = true;
-                                        sale = khuyenMai;
-                                        giaSale = total - total * sale;
-                                        if (total == giaSale) {
-                                          isSale = false;
-                                          giaSale = 0;
-                                        }
                                         _isLoad = false;
                                       });
-                                      print('khuyenMai-- $khuyenMai');
                                     });
                                     setState(() {
                                       _isLoad = true;
@@ -496,7 +508,7 @@ class _CartPageState extends State<CartPage>
                             Text(
                               '${oCcyMoney.format(total)} ₫',
                               style: TextStyle(
-                                decoration: isSale
+                                decoration: isSale || saleMemeber != 0
                                     ? TextDecoration.lineThrough
                                     : TextDecoration.none,
                                 fontSize: _width / 15,
@@ -506,11 +518,11 @@ class _CartPageState extends State<CartPage>
                             ),
                           ],
                         ),
-                        if (isSale)
+                        if (isSale || saleMemeber != 0)
                           Container(
                             alignment: Alignment.centerRight,
                             child: Text(
-                              '${oCcyMoney.format(giaSale)} ₫',
+                              '${oCcyMoney.format(giaSale - saleMemeber)} ₫',
                               style: TextStyle(
                                 fontSize: _width / 20,
                                 fontWeight: FontWeight.w400,
@@ -521,7 +533,7 @@ class _CartPageState extends State<CartPage>
                         const SizedBox(height: 15),
                         _isLoadThanhToan
                             ? Center(
-                                child: CircularProgressIndicator(),
+                                child: LoadingWidget(color: Colors.orange,),
                               )
                             : TextButton(
                                 onPressed: pRoom!.infoBook.isEmpty
@@ -544,43 +556,57 @@ class _CartPageState extends State<CartPage>
                                             onPressCancel: () {}
                                           );
                                           return;
-                                        }
-                                        Future.wait(
-                                          [bookedRequest(
-                                              username: user!.username,
-                                              soLuongNguoiTH: pRoom!.infoBook.map((e) => e.countInfoRoom.soluongNguoiLon).reduce((value, element) => value + element),
-                                              soLuongTreEm: pRoom!.infoBook.map((e) => e.countInfoRoom.soLuongTreEm).reduce((value, element) => value + element),
-                                              gia: isSale ? giaSale : total,
-                                              ngayDat: pRoom!.infoBook[0].ngayDat.timeCheckin!,
-                                              ngayTra: pRoom!.infoBook[0].ngayDat.timeCheckout!,
-                                              idPhong: pRoom!.infoBook.map((e) => e.idPhong).expand((element) => element).toList()
-                                          )]
-                                        ).then((bookRoom) {
-                                          if (bookRoom
-                                              .every((element) => element)) {
-                                            messageAlert(
-                                              context,
-                                              'Đặt phòng thành công',
-                                              onPressOK: () {
-                                                // todo: reload data
-                                              }
-                                            );
-                                            Provider.of<PRoom>(context,
-                                                    listen: false)
-                                                .deleteAllInfoBook();
+                                        } else {
+                                          messageAlert(
+                                            context, 'Xác nhận đặt phòng',
+                                            color: Colors.blue.shade300,
+                                            onPressCancel: () {
+                                              setState(() {
+                                                _isLoadThanhToan = false;
+                                              });
+                                            },
+                                            onPressOK: () {
+                                              Future.wait(
+                                                [bookedRequest(
+                                                    username: user!.username,
+                                                    soLuongNguoiTH: pRoom!.infoBook.map((e) => e.countInfoRoom.soluongNguoiLon).reduce((value, element) => value + element),
+                                                    soLuongTreEm: pRoom!.infoBook.map((e) => e.countInfoRoom.soLuongTreEm).reduce((value, element) => value + element),
+                                                    gia: isSale || saleMemeber != 0 ? giaSale - saleMemeber : total,
+                                                    ngayDat: pRoom!.infoBook[0].ngayDat.timeCheckin!,
+                                                    ngayTra: pRoom!.infoBook[0].ngayDat.timeCheckout!,
+                                                    idPhong: pRoom!.infoBook.map((e) => e.idPhong).expand((element) => element).toList()
+                                                )]
+                                              ).then((bookRoom) async {
+                                                if (bookRoom
+                                                    .every((element) => element)) {
+                                                  final roomData = await roomRequest();
 
-                                            setState(() {
-                                              giaSale = 0;
-                                              isSale = false;
-                                              _idSaleController.clear();
-                                              _isLoadThanhToan = false;
-                                            });
-                                          }
-                                        });
+                                                  Provider.of<PRoom>(context, listen: false).setRooms(roomData??[]);
+                                                  
+                                                  messageAlert(
+                                                    context,
+                                                    'Đặt phòng thành công',
+                                                    color: Colors.blue.shade400,
+                                                    onPressOK: () {
+                                                      Provider.of<PRoom>(context, listen: false).deleteAllInfoBook();
+
+                                                      setState(() {
+                                                        sale = 0;
+                                                        giaSale = 0;
+                                                        isSale = false;
+                                                        _idSaleController.clear();
+                                                        _isLoadThanhToan = false;
+                                                      });
+                                                    }
+                                                  );
+                                                }
+                                              });
+                                            }
+                                          );
+                                        }
                                         setState(() {
                                           _isLoadThanhToan = true;
                                         });
-
                                       },
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(

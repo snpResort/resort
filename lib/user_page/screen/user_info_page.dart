@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/main.dart';
+import 'package:resort/user_page/screen/edit_info_page.dart';
 
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});
@@ -45,7 +47,11 @@ class _UserInfoPageState extends State<UserInfoPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {}, 
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => EditInfoPage(user: user,),)
+              );
+            }, 
             icon: Icon(Icons.edit, color: Colors.black,)
           )
         ],
@@ -56,9 +62,12 @@ class _UserInfoPageState extends State<UserInfoPage> {
             const SizedBox(height: 10),
             DataTableCustom(flex: 3, {
               'Họ tên': '${user!.hoTen}',
+              'Giới tính': '${user!.gioiTinh}',
               'Email': '${user!.email}',
+              'Ngày sinh': '${DateFormat('dd/MM/yyyy').format(user!.ngaySinh)}',
               'Căn căn công dân': '${user!.canCuoc}',
-              'Số điện thoại': '${user!.sdt}',
+              'Số điện thoại': '${formatPhoneNumber(user!.sdt)}',
+              'Địa chỉ': '${user!.diaChi}',
               'Mã thành viên': '${user!.idTK}',
             }),
           ],
@@ -127,4 +136,11 @@ class DataTableCustom extends StatelessWidget {
       ),
     );
   }
+}
+
+formatPhoneNumberBasic(phone_number) {
+  return phone_number.split(' ').join('');
+}
+formatPhoneNumber(phone_number) {
+  return phone_number.replaceAllMapped(RegExp(r'(\d{4})(\d{3})(\d+)'), (Match m) => "${m[1]} ${m[2]} ${m[3]}");
 }

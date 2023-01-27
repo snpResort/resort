@@ -37,10 +37,13 @@ class Screen_RegisterState extends State<ScreenRegister> {
   
   @override
   Widget build(BuildContext context) {
-    final Widget logo = Center(
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width / 2,
-        child: const LogoApp(),
+    final Widget logo = Hero(
+      tag: 'logo',
+      child: Center(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width / 2,
+          child: const LogoApp(),
+        ),
       ),
     );
     final Widget textFieldContent = Container(
