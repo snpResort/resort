@@ -31,10 +31,6 @@ Future<void> succesAlert(context, String a) async {
                     SizedBox(
                       height: 10,
                     ),
-                    Text('Thông báo'),
-                    SizedBox(
-                      height: 5,
-                    ),
                     Text(
                       a,
                       maxLines: 20,
@@ -44,15 +40,16 @@ Future<void> succesAlert(context, String a) async {
                       height: 5,
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextButton(
-                          child: Text(
-                            'OK',
+                        Expanded(
+                          child: TextButton(
+                            child: Text(
+                              'OK',
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
                           ),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
                         ),
                       ],
                     )

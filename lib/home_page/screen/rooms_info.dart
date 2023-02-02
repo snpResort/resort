@@ -14,35 +14,25 @@ import 'package:resort/widgets/custom_lp.dart';
 import 'package:resort/widgets/loading_widget.dart';
 
 class RoomsInfo extends StatefulWidget {
-  const RoomsInfo({super.key});
+  RoomsInfo({super.key, this.rooms});
+  List<Room>? rooms = [];
   static String id = 'RoomsInfo';
   @override
   State<RoomsInfo> createState() => _RoomsInfoState();
 }
 
 class _RoomsInfoState extends State<RoomsInfo> {
-  List<Room> rooms = [];
+  List<Room> _rooms = [];
   bool isLoad = false;
   
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _rooms = widget.rooms ?? [];
+    
 
-    roomRequest().then((value) {
-      print('==================== vale: $value');
-      Provider.of<PRoom>(context, listen: false).setRooms(value??[]);
-      setState(() {
-        isLoad = false;
-        try {
-          rooms = value!;
-        } catch (e) {
-          print('------------e: $e');
-        }
-      });
-    });
-
-    isLoad = true;
+    isLoad = false;
   }
 
   @override
@@ -58,42 +48,67 @@ class _RoomsInfoState extends State<RoomsInfo> {
           height: _height,
           width: _width,
         ),
-        isLoad
-            ? Center(
-                child: LoadingWidget(),
-              )
-            : Scaffold(
-                appBar: AppBar(
-                  leading: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Icon(
-                      CupertinoIcons.back,
-                      color: Colors.white,
+        Scaffold(
+          appBar: AppBar(
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: Icon(
+                CupertinoIcons.back,
+                color: Colors.white,
+              ),
+            ),
+            title: Text('Danh sách phòng'),
+            centerTitle: true,
+            elevation: 1,
+            backgroundColor: Colors.transparent,
+          ),
+          backgroundColor: Colors.transparent,
+          body: RefreshIndicator(
+            onRefresh: () {
+              setState(() {
+                isLoad = true;
+              });
+              roomRequest().then((value) {
+                print('==================== vale: $value');
+                Provider.of<PRoom>(context, listen: false).setRooms(value??[]);
+                setState(() {
+                  isLoad = false;
+                  try {
+                    _rooms = value!;
+                  } catch (e) {
+                    print('------------e: $e');
+                  }
+                });
+              });
+              return Future.delayed(Duration(milliseconds: 500));
+            },
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    _loaiPhong(
+                      width: _width,
+                      rooms: _rooms,
                     ),
-                  ),
-                  title: Text('Danh sách phòng'),
-                  centerTitle: true,
-                  elevation: 1,
-                  backgroundColor: Colors.transparent,
-                ),
-                backgroundColor: Colors.transparent,
-                body: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: SafeArea(
-                    child: Column(
-                      children: [
-                        _loaiPhong(
-                          width: _width,
-                          rooms: rooms,
-                        ),
-                        const SizedBox(height: 60),
-                      ],
-                    ),
-                  ),
+                    const SizedBox(height: 60),
+                  ],
                 ),
               ),
+            ),
+          ),
+        ),
+        if (isLoad)
+        Container(
+          height: _height,
+          width: _width,
+          color: Colors.black45,
+          child: Center(
+            child: LoadingWidget(),
+          ),
+        )
       ],
     );
   }
@@ -126,7 +141,12 @@ class _loaiPhong extends StatelessWidget {
                   screen: RoomInfoPage(),
                   withNavBar: false, // OPTIONAL VALUE. True by default.
                   pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                );
+                ).then((value) {
+                  if (value)
+                  {
+                    Navigator.of(context).pop();
+                  }
+                });
               },
               child: Container(
                 margin: EdgeInsets.symmetric(vertical: 18),

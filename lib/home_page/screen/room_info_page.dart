@@ -66,7 +66,7 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
   
   var _commentController = TextEditingController();
   
-  double _rate = 2.5;
+  double _rate = 4.5;
 
   @override
   void initState() {

@@ -53,7 +53,7 @@ class _BookedInfoPageState extends State<BookedInfoPage> {
         physics: const BouncingScrollPhysics(),
         child: Container(
           margin: EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: 2,
             vertical: 15,
           ),
           padding: EdgeInsets.all(10),
@@ -223,14 +223,14 @@ class _BookedInfoPageState extends State<BookedInfoPage> {
                     flex: 3,
                     child: Text(
                       'Phòng',
-                      style: TextStyle(fontSize: (_width - 40) / 22, color: Colors.orange, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: (_width/1.2) / 20, color: Colors.orange, fontWeight: FontWeight.w500),
                     ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
                     child: Text(
                       'Số lượng',
-                      style: TextStyle(fontSize: (_width - 40) / 22, color: Colors.orange, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: (_width/1.2) / 20, color: Colors.orange, fontWeight: FontWeight.w500),
                     ),
                   ),
                   Expanded(
@@ -239,7 +239,7 @@ class _BookedInfoPageState extends State<BookedInfoPage> {
                       alignment: Alignment.centerRight,
                       child: Text(
                         'Giá',
-                        style: TextStyle(fontSize: (_width - 40) / 22, color: Colors.orange, fontWeight: FontWeight.w500),
+                        style: TextStyle(fontSize: (_width/1.2) / 20, color: Colors.orange, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),

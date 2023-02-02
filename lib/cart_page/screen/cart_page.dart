@@ -344,8 +344,16 @@ class _CartPageState extends State<CartPage>
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    Provider.of<PRoom>(context, listen: false)
+                                    messageAlert(
+                                      context, 
+                                      'Bạn có muốn xoá ${infoBook[index].tenLP} ra khỏi danh sách đặt phòng không?',
+                                      onPressCancel: () {},
+                                      onPressOK: () {
+                                        Provider.of<PRoom>(context, listen: false)
                                         .deleteInfoBook(infoBook[index]);
+                                      }
+                                    );
+                                    
 
                                     setState(() {});
                                   },

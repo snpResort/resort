@@ -77,35 +77,40 @@ class _RegisterInfoState extends State<RegisterInfo> {
                       ),
                       const SizedBox(height: 15),
                       TextField(
-                        onTap: () {
-                          DatePicker.showDatePicker(
-                            context,
-                            showTitleActions: true,
-                            minTime: DateTime(1999, 1, 1),
-                            maxTime: DateTime(2030, 12, 31),
-                            onChanged: (date) {
-                              print('change $date');
-                            }, onConfirm: (date) {
-                              setState(() {
-                                _txtNgaySinh.text = DateFormat('dd/MM/yyyy').format(date);
-                              });
-                            },
-                            currentTime: DateTime.now(),
-                            locale: LocaleType.vi
-                          );
-                        },
+                        onTap: null,
                         controller: _txtNgaySinh,
-                        readOnly: true,
+                        readOnly: false,
                         inputFormatters: [
                           MaskTextInputFormatter(mask: "##/##/####"),
                         ],
                         keyboardType: TextInputType.datetime,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Ngày sinh (31/12/2001)',
                           fillColor: Colors.white,
                           filled: true,
                           border: OutlineInputBorder(),
-                          prefixIcon: Icon(CupertinoIcons.calendar),
+                          prefixIcon: GestureDetector(
+                            onTap: () {
+                              DatePicker.showDatePicker(
+                                context,
+                                showTitleActions: true,
+                                minTime: DateTime(1899, 1, 1),
+                                maxTime: DateTime.now(),
+                                onChanged: (date) {
+                                  print('change $date');
+                                }, onConfirm: (date) {
+                                  setState(() {
+                                    _txtNgaySinh.text = DateFormat('dd/MM/yyyy').format(date);
+                                  });
+                                },
+                                currentTime: DateTime.now(),
+                                locale: LocaleType.vi
+                              );
+                            },
+                            child: Icon(
+                              CupertinoIcons.calendar
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 15),
@@ -210,9 +215,9 @@ class _RegisterInfoState extends State<RegisterInfo> {
                               .hasMatch(_txtNgaySinh.text.trim())) {
                             messageAlert(
                               context,
-                              'Ngày sinh không hợp lệ vui lòng nhập lại',
+                              'Ngày sinh không hợp lệ vui lòng nhập theo thứ tự (dd/MM/yyyy)',
                             );
-                          } else if (!RegExp(r'(09|01[2|6|8|9])+([0-9]{8})\b')
+                          } else if (!RegExp(r'(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b')
                               .hasMatch(_txtSDT.text.split(' ').join('').trim())) {
                             messageAlert(
                               context,

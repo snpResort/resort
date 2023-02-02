@@ -47,6 +47,18 @@ Future<void> messageAlert(context, String a, {Color? color, Function? onPressOK,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
+                        if (onPressCancel != null)
+                        Expanded(
+                          child: TextButton(
+                            child: Text(
+                              'Trở lại',
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              onPressCancel();
+                            },
+                          ),
+                        ),
                         Expanded(
                           child: TextButton(
                             child: Text(
@@ -57,18 +69,6 @@ Future<void> messageAlert(context, String a, {Color? color, Function? onPressOK,
                               if (onPressOK != null) {
                                 onPressOK();
                               }
-                            },
-                          ),
-                        ),
-                        if (onPressCancel != null)
-                        Expanded(
-                          child: TextButton(
-                            child: Text(
-                              'Trở lại',
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              onPressCancel();
                             },
                           ),
                         ),

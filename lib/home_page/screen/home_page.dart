@@ -404,6 +404,12 @@ class _HomePageState extends State<HomePage> {
                                           if (_priceController.text.isEmpty) {
                                             messageAlert(context, 'Vui lòng nhập giá');
                                           } else {
+                                            try {
+                                              int.parse(_priceController.text);
+                                            } catch (e) {
+                                              messageAlert(context, 'Giá không được chứa kí tự đặc biệt');
+                                              return;
+                                            }
                                             FocusManager.instance.primaryFocus?.unfocus();
                                             // todo: handle search room
                                             print('search ${rooms.length}');
@@ -444,7 +450,7 @@ class _HomePageState extends State<HomePage> {
                                               return flagCheckPrice && flagPeople && flagRoom;
                                             }).toList();
                                             if (searchRoom.length == 0) {
-                                              messageAlert(context, 'Không tìm thầy phòng phù hợp\nVui lòng thử lại', color: Colors.blue.shade300);
+                                              messageAlert(context, 'Không tìm thấy phòng phù hợp\nVui lòng thử lại', color: Colors.blue.shade300);
                                             } else {
                                               // todo: navigator into page room search
                                               PersistentNavBarNavigator.pushNewScreen(
@@ -704,7 +710,7 @@ class _loaiPhong extends StatelessWidget {
                   Provider.of<PRoom>(context, listen: false).setRooms(rooms);
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
-                    screen: const RoomsInfo(),
+                    screen: RoomsInfo(rooms: rooms),
                     withNavBar: false, // OPTIONAL VALUE. True by default.
                     pageTransitionAnimation: PageTransitionAnimation.cupertino,
                   );

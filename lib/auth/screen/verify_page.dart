@@ -69,14 +69,14 @@ class _VerifyPageState extends State<VerifyPage> {
                       TextButton(
                         onPressed: () async {
                           print('comfirm code');
-                          // final token = Provider.of<PUser>(context, listen: false).token!;
-                          // final rs = await VerifyCode(token: token, code: _verifyCode.text);
+                          final token = Provider.of<PUser>(context, listen: false).token!;
+                          final rs = await VerifyCode(token: token, code: _verifyCode.text);
             
                           try {
-                            // if (rs!['hasError']) {
-                            //   messageAlert(context, rs['message'], color: Colors.yellow.shade700);
-                            //   return;
-                            // }
+                            if (rs!['hasError']) {
+                              messageAlert(context, rs['message'], color: Colors.yellow.shade700);
+                              return;
+                            }
             
                             Navigator.of(context)
                               .pushReplacementNamed(widget.isforgotPassword ? ChangePassword.id :  RegisterInfo.id);

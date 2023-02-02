@@ -99,35 +99,38 @@ class _EditInfoPageState extends State<EditInfoPage> {
                     ),
                     const SizedBox(height: 15),
                     TextField(
-                      onTap: () {
-                        DatePicker.showDatePicker(
-                          context,
-                          showTitleActions: true,
-                          minTime: DateTime(1999, 1, 1),
-                          maxTime: DateTime(2030, 12, 31),
-                          onChanged: (date) {
-                            print('change $date');
-                          }, onConfirm: (date) {
-                            setState(() {
-                              _txtNgaySinh.text = DateFormat('dd/MM/yyyy').format(date);
-                            });
-                          },
-                          currentTime: DateTime.now(),
-                          locale: LocaleType.vi
-                        );
-                      },
+                      onTap: null,
+                      readOnly: false,
                       controller: _txtNgaySinh,
-                      readOnly: true,
                       inputFormatters: [
                         MaskTextInputFormatter(mask: "##/##/####"),
                       ],
                       keyboardType: TextInputType.datetime,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Ngày sinh (31/12/2001)',
                         fillColor: Colors.white,
                         filled: true,
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(CupertinoIcons.calendar),
+                        prefixIcon: GestureDetector(
+                          onTap: () {
+                            DatePicker.showDatePicker(
+                              context,
+                              showTitleActions: true,
+                              minTime: DateTime(1999, 1, 1),
+                              maxTime: DateTime(2030, 12, 31),
+                              onChanged: (date) {
+                                print('change $date');
+                              }, onConfirm: (date) {
+                                setState(() {
+                                  _txtNgaySinh.text = DateFormat('dd/MM/yyyy').format(date);
+                                });
+                              },
+                              currentTime: DateTime.now(),
+                              locale: LocaleType.vi
+                            );
+                          },
+                          child: Icon(CupertinoIcons.calendar)
+                        ),
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -238,7 +241,7 @@ class _EditInfoPageState extends State<EditInfoPage> {
                             context,
                             'Ngày sinh không hợp lệ vui lòng nhập lại',
                           );
-                        } else if (!RegExp(r'(09|01[2|6|8|9])+([0-9]{8})\b')
+                        } else if (!RegExp(r'(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b')
                             .hasMatch(_txtSDT.text.split(' ').join('').trim())) {
                           messageAlert(
                             context,

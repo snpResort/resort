@@ -201,14 +201,14 @@ class _HistoryBookedState extends State<HistoryBooked> {
                                   flex: 2,
                                   child: Text(
                                     'Phòng',
-                                    style: TextStyle(fontSize: (_width - 40) / 21),
+                                    style: TextStyle(fontSize: (_width/1.2) / 21),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
                                 Expanded(
                                   child: Text(
                                     'Số lượng',
-                                    style: TextStyle(fontSize: (_width - 40) / 21),
+                                    style: TextStyle(fontSize: (_width/1.2) / 21),
                                   ),
                                 ),
                                 Expanded(
@@ -217,7 +217,7 @@ class _HistoryBookedState extends State<HistoryBooked> {
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                       'Giá',
-                                      style: TextStyle(fontSize: (_width - 40) / 21),
+                                      style: TextStyle(fontSize: (_width/1.2) / 21),
                                     ),
                                   ),
                                 ),
