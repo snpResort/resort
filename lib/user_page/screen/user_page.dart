@@ -346,7 +346,7 @@ class _UserPageState extends State<UserPage> {
           _dividerControl,
           _buttonControl(
             title: 'Thay đổi mật khẩu',
-            icon: CupertinoIcons.person_circle,
+            icon: CupertinoIcons.lock_shield,
             onClick: () {
               Navigator.of(context).pushNamed(ChangePasswordUser.id);
             },

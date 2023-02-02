@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/models/user.dart';
@@ -19,6 +21,7 @@ import 'package:resort/home_page/request/room_request.dart';
 import 'package:resort/main.dart';
 import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/message_alert.dart';
+import 'package:resort/widgets/payment_method.dart';
 import 'package:resort/widgets/success_alert.dart';
 import 'package:resort/widgets/warning_alert.dart';
 import 'package:resort/widgets/wrong_alert.dart';
@@ -53,6 +56,9 @@ class _CartPageState extends State<CartPage>
   late Animation _animation;
 
   FocusNode _focusNode = FocusNode();
+  FocusNode _focusNodeCVC = FocusNode();
+  
+  String _paymentMethod = '';
 
   @override
   void initState() {
@@ -67,6 +73,13 @@ class _CartPageState extends State<CartPage>
 
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+    _focusNodeCVC.addListener(() {
+      if (_focusNodeCVC.hasFocus) {
         _controller.forward();
       } else {
         _controller.reverse();
@@ -464,6 +477,11 @@ class _CartPageState extends State<CartPage>
                         GestureDetector(
                           onTap: () {
                             // Todo show select method pay
+                            paymentMethod(context, onPress: (val) {
+                              setState(() {
+                                _paymentMethod = val;
+                              });
+                            });
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -475,9 +493,63 @@ class _CartPageState extends State<CartPage>
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
+                              if (_paymentMethod.isNotEmpty && _paymentMethod != 'atm')
+                                CachedNetworkImage(imageUrl: _paymentMethod, height: 40, width: 40),
                               Icon(Icons.arrow_forward_ios),
                             ],
                           ),
+                        ),
+                        SizedBox( height: 20, ),
+                        if (_paymentMethod == 'atm')
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextField(
+                              inputFormatters: [
+                                MaskTextInputFormatter(mask: "#### #### #### ####"),
+                              ],
+                              // obscureText: _obscureTextPw,
+                              // focusNode: _focusPw,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: 'Số thẻ',
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: const OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.atm_outlined),
+                              ),
+                              // controller: _pw,
+                            ),
+                            SizedBox( height: 20, ),
+                            TextField(
+                              // obscureText: _obscureTextPw,
+                              // focusNode: _focusPw,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                MaskTextInputFormatter(mask: "##/##"),
+                              ],
+                              decoration: InputDecoration(
+                                hintText: 'YY/MM',
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: const OutlineInputBorder(),
+                              ),
+                              // controller: _pw,
+                            ),
+                            SizedBox( height: 20, ),
+                            TextField(
+                              // obscureText: _obscureTextPw,
+                              focusNode: _focusNodeCVC,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: 'CVC',
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: const OutlineInputBorder(),
+                              ),
+                              // controller: _pw,
+                            ),
+                          ],
                         ),
                         SizedBox(height: _animation.value),
                       ],

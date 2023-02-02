@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:resort/auth/repository/p_user.dart';
 import 'package:resort/auth/request/login_request.dart';
@@ -13,6 +15,7 @@ import 'package:resort/user_page/request/user_request.dart';
 import 'package:resort/user_page/screen/user_page.dart';
 import 'package:resort/widgets/loading_widget.dart';
 import 'package:resort/widgets/message_alert.dart';
+import 'package:resort/widgets/payment_method.dart';
 import 'package:resort/widgets/rounded_button.dart';
 
 class UpgradeRankPage extends StatefulWidget {
@@ -31,6 +34,8 @@ class _UpgradeRankPageState extends State<UpgradeRankPage> {
   bool isLoad = false;
   final oCcyMoney = NumberFormat("#,##0");
   final oCcySale = NumberFormat("#.##");
+  
+  String _paymentMethod = '';
 
   @override
   void initState() {
@@ -218,76 +223,138 @@ class _UpgradeRankPageState extends State<UpgradeRankPage> {
                                     child: Stack(
                                       children: [
                                         Container(
+                                          height: _paymentMethod == 'atm' ? _height / 2.4 : null,
                                           padding: EdgeInsets.all(20),
-                                          child: Column(
-                                            children: [
-                                              Text('Thanh toán', style: TextStyle(fontSize: _width/15),),
-                                              SizedBox( height: 20, ),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    sale['TenLoai'],
-                                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  Text(
-                                                    '${oCcyMoney.format(sale['Gia'])} ₫/năm',
-                                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox( height: 20, ),
-                                              const Divider(thickness: 2,),
-                                              SizedBox( height: 20, ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  // Todo show select method pay
-                                                },
-                                                child: Row(
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                Text('Thanh toán', style: TextStyle(fontSize: _width/15),),
+                                                SizedBox( height: 20, ),
+                                                Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     Text(
-                                                      'Phương thức thanh toán',
-                                                      style: TextStyle(
-                                                        fontSize: _width / 20,
-                                                        fontWeight: FontWeight.w400,
-                                                      ),
+                                                      sale['TenLoai'],
+                                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                                      textAlign: TextAlign.center,
                                                     ),
-                                                    Icon(Icons.arrow_forward_ios),
+                                                    Text(
+                                                      '${oCcyMoney.format(sale['Gia'])} ₫/năm',
+                                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                                      textAlign: TextAlign.center,
+                                                    ),
                                                   ],
                                                 ),
-                                              ),
-                                              SizedBox( height: 25, ),
-                                              isLoad ? LoadingWidget(color: Colors.yellow.shade700,) : RoundedButton(
-                                                onPressed: () async { 
-                                                  setState(() {
-                                                    isLoad = true;
-                                                  });
-                                                  final rs = await updateMember(user_id: puser!.user!.idTK, id_level: '${sale['Id']}');
-
-                                                  final reloadUser = await loginRequest(username: puser!.user!.username, password: puser!.user!.password);
-                                                  if (reloadUser != null) {
-                                                    Provider.of<PUser>(context, listen: false).login(reloadUser);
-                                                  }
-
-                                                  messageAlert(
-                                                    context, 
-                                                    rs,
-                                                    color: rs == 'Error' ? null : Colors.blue.shade400,
-                                                    onPressOK: rs == 'Error' ? null : () {   
-                                                      Navigator.of(context).pop();     
+                                                SizedBox( height: 20, ),
+                                                const Divider(thickness: 2,),
+                                                SizedBox( height: 20, ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    // Todo show select method pay
+                                                    paymentMethod(context, onPress: (val) {
+                                                      setState(() {
+                                                        _paymentMethod = val;
+                                                      });
+                                                    });
+                                                  },
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        'Phương thức thanh toán',
+                                                        style: TextStyle(
+                                                          fontSize: _width / 20,
+                                                          fontWeight: FontWeight.w400,
+                                                        ),
+                                                      ),
+                                                      if (_paymentMethod.isNotEmpty && _paymentMethod != 'atm')
+                                                        CachedNetworkImage(imageUrl: _paymentMethod, height: 40, width: 40),
+                                                      Icon(Icons.arrow_forward_ios),
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox( height: 20, ),
+                                                if (_paymentMethod == 'atm')
+                                                Column(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                  children: [
+                                                    TextField(
+                                                      inputFormatters: [
+                                                        MaskTextInputFormatter(mask: "#### #### #### ####"),
+                                                      ],
+                                                      // obscureText: _obscureTextPw,
+                                                      // focusNode: _focusPw,
+                                                      keyboardType: TextInputType.number,
+                                                      decoration: InputDecoration(
+                                                        hintText: 'Số thẻ',
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        border: const OutlineInputBorder(),
+                                                        prefixIcon: Icon(Icons.atm_outlined),
+                                                      ),
+                                                      // controller: _pw,
+                                                    ),
+                                                    SizedBox( height: 20, ),
+                                                    TextField(
+                                                      // obscureText: _obscureTextPw,
+                                                      // focusNode: _focusPw,
+                                                      keyboardType: TextInputType.number,
+                                                      inputFormatters: [
+                                                        MaskTextInputFormatter(mask: "##/##"),
+                                                      ],
+                                                      decoration: InputDecoration(
+                                                        hintText: 'YY/MM',
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        border: const OutlineInputBorder(),
+                                                      ),
+                                                      // controller: _pw,
+                                                    ),
+                                                    SizedBox( height: 20, ),
+                                                    TextField(
+                                                      // obscureText: _obscureTextPw,
+                                                      // focusNode: _focusPw,
+                                                      keyboardType: TextInputType.number,
+                                                      decoration: InputDecoration(
+                                                        hintText: 'CVC',
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        border: const OutlineInputBorder(),
+                                                      ),
+                                                      // controller: _pw,
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox( height: 25, ),
+                                                isLoad ? LoadingWidget(color: Colors.yellow.shade700,) : RoundedButton(
+                                                  onPressed: () async { 
+                                                    setState(() {
+                                                      isLoad = true;
+                                                    });
+                                                    final rs = await updateMember(user_id: puser!.user!.idTK, id_level: '${sale['Id']}');
+                                          
+                                                    final reloadUser = await loginRequest(username: puser!.user!.username, password: puser!.user!.password);
+                                                    if (reloadUser != null) {
+                                                      Provider.of<PUser>(context, listen: false).login(reloadUser);
                                                     }
-                                                  );
-
-                                                  setState(() {
-                                                    isLoad = false;
-                                                  });
-                                                },
-                                                color: Colors.yellow.shade700, 
-                                                title: 'Thanh toán')
-                                            ],
+                                          
+                                                    messageAlert(
+                                                      context, 
+                                                      rs,
+                                                      color: rs == 'Error' ? null : Colors.blue.shade400,
+                                                      onPressOK: rs == 'Error' ? null : () {   
+                                                        Navigator.of(context).pop();     
+                                                      }
+                                                    );
+                                          
+                                                    setState(() {
+                                                      isLoad = false;
+                                                    });
+                                                  },
+                                                  color: Colors.yellow.shade700, 
+                                                  title: 'Thanh toán')
+                                              ],
+                                            ),
                                           ),
                                         ),
                                         Positioned(
@@ -295,6 +362,9 @@ class _UpgradeRankPageState extends State<UpgradeRankPage> {
                                           right: 0,
                                           child: IconButton(
                                             onPressed: () {
+                                              setState(() {
+                                                _paymentMethod = '';
+                                              });
                                               Navigator.of(context).pop();
                                             }, 
                                             icon: Icon(Icons.close, color: Colors.red,)
