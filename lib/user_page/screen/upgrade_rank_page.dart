@@ -35,7 +35,7 @@ class _UpgradeRankPageState extends State<UpgradeRankPage> {
   final oCcyMoney = NumberFormat("#,##0");
   final oCcySale = NumberFormat("#.##");
   
-  String _paymentMethod = '';
+  String _paymentMethod = 'https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png';
 
   @override
   void initState() {
@@ -134,19 +134,23 @@ class _UpgradeRankPageState extends State<UpgradeRankPage> {
                         ? CopperRank(
                           width: _width, 
                           user: puser!.user,
+                          ngayTao: DateTime.now(),
                         ) 
                         : sale['TenLoai'] == 'BẠC'  
                           ? SilverRank(
                             width: _width, 
                             user: puser!.user,
+                            ngayTao: DateTime.now(),
                           ) 
                           : sale['TenLoai'] == 'VÀNG'
                             ? GoldRank(
                               width: _width, 
                               user: puser!.user,
+                              ngayTao: DateTime.now(),
                             ) : DiamondRank(
                               width: _width, 
                               user: puser!.user,
+                              ngayTao: DateTime.now(),
                             ),
                     ),
                     Container(

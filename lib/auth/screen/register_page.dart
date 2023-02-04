@@ -132,6 +132,13 @@ class Screen_RegisterState extends State<ScreenRegister> {
               color: Colors.yellow.shade700
             );
             return;
+          } else if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$\b').hasMatch(_pw.text)) {
+            messageAlert(
+              context,
+              'Mật khẩu phải tối thiểu tám ký tự, ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt',
+              color: Colors.yellow.shade700
+            );
+            return;
           } else if (_repw.text.isEmpty) {
             messageAlert(
               context,

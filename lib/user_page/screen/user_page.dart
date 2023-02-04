@@ -473,14 +473,16 @@ class _UserPageState extends State<UserPage> {
 }
 
 class CopperRank extends StatelessWidget {
-  const CopperRank({
+  CopperRank({
     Key? key,
     required double width,
     required User? user,
+    DateTime? this.ngayTao
   }) : _width = width, _user = user, super(key: key);
 
   final double _width;
   final User? _user;
+  late DateTime? ngayTao;
 
   @override
   Widget build(BuildContext context) {
@@ -578,7 +580,7 @@ class CopperRank extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            '${DateFormat('MMM dd yyyy').format(ngayTao ?? _user!.member.ngayTao)}',
                             style: TextStyle(
                               fontSize: (_width - 15) / 18,
                               color: Colors.white,
@@ -600,14 +602,16 @@ class CopperRank extends StatelessWidget {
 }
 
 class SilverRank extends StatelessWidget {
-  const SilverRank({
+  SilverRank({
     Key? key,
     required double width,
     required User? user,
+    DateTime? this.ngayTao
   }) : _width = width, _user = user, super(key: key);
 
   final double _width;
   final User? _user;
+  late DateTime? ngayTao;
 
   @override
   Widget build(BuildContext context) {
@@ -705,7 +709,7 @@ class SilverRank extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            '${DateFormat('MMM dd yyyy').format(ngayTao ?? _user!.member.ngayTao)}',
                             style: TextStyle(
                               fontSize: (_width - 15) / 18,
                               color: Colors.white,
@@ -725,7 +729,7 @@ class SilverRank extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao.add(Duration(days: 365)))}',
+                            '${DateFormat('MMM dd yyyy').format(ngayTao?.add(Duration(days: 365)) ?? _user!.member.ngayTao.add(Duration(days: 365)))}',
                             style: TextStyle(
                               fontSize: (_width - 15) / 18,
                               color: Colors.white,
@@ -746,14 +750,16 @@ class SilverRank extends StatelessWidget {
 }
 
 class GoldRank extends StatelessWidget {
-  const GoldRank({
+  GoldRank({
     Key? key,
     required double width,
     required User? user,
+    DateTime? this.ngayTao
   }) : _width = width, _user = user, super(key: key);
 
   final double _width;
   final User? _user;
+  late DateTime? ngayTao;
 
   @override
   Widget build(BuildContext context) {
@@ -851,7 +857,7 @@ class GoldRank extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            '${DateFormat('MMM dd yyyy').format(ngayTao ?? _user!.member.ngayTao)}',
                             style: TextStyle(
                               fontSize: (_width - 15) / 18,
                               color: Colors.white,
@@ -871,7 +877,7 @@ class GoldRank extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao.add(Duration(days: 365)))}',
+                            '${DateFormat('MMM dd yyyy').format(ngayTao?.add(Duration(days: 365)) ?? _user!.member.ngayTao.add(Duration(days: 365)))}',
                             style: TextStyle(
                               fontSize: (_width - 15) / 18,
                               color: Colors.white,
@@ -892,14 +898,16 @@ class GoldRank extends StatelessWidget {
 }
 
 class DiamondRank extends StatelessWidget {
-  const DiamondRank({
+  DiamondRank({
     Key? key,
     required double width,
     required User? user,
+    DateTime? this.ngayTao
   }) : _width = width, _user = user, super(key: key);
 
   final double _width;
   final User? _user;
+  late DateTime? ngayTao;
 
   @override
   Widget build(BuildContext context) {
@@ -997,7 +1005,7 @@ class DiamondRank extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao)}',
+                            '${DateFormat('MMM dd yyyy').format(ngayTao ?? _user!.member.ngayTao)}',
                             style: TextStyle(
                               fontSize: (_width - 15) / 18,
                               color: Color(0xffcfb775),
@@ -1017,7 +1025,7 @@ class DiamondRank extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${DateFormat('MMM dd yyyy').format(_user!.member.ngayTao.add(Duration(days: 365)))}',
+                            '${DateFormat('MMM dd yyyy').format(ngayTao?.add(Duration(days: 365)) ?? _user!.member.ngayTao.add(Duration(days: 365)))}',
                             style: TextStyle(
                               fontSize: (_width - 15) / 18,
                               color: Color(0xffcfb775),

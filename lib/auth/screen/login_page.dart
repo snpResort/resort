@@ -217,6 +217,7 @@ class ScreenLoginState extends State<ScreenLogin> {
                     color: Colors.grey.shade400,
                     title: 'Quay lại',
                     onPressed: () async {
+                      Provider.of<PUser>(context, listen: false).clear();
                       Navigator.of(context).pop();
                     }
                   ),

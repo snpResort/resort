@@ -405,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                                             messageAlert(context, 'Vui lòng nhập giá');
                                           } else {
                                             try {
-                                              int.parse(_priceController.text);
+                                              int.parse(_priceController.text.replaceAll(',', ''));
                                             } catch (e) {
                                               messageAlert(context, 'Giá không được chứa kí tự đặc biệt');
                                               return;

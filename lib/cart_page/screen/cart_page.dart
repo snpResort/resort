@@ -58,7 +58,7 @@ class _CartPageState extends State<CartPage>
   FocusNode _focusNode = FocusNode();
   FocusNode _focusNodeCVC = FocusNode();
   
-  String _paymentMethod = '';
+  String _paymentMethod = 'https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png';
 
   @override
   void initState() {
