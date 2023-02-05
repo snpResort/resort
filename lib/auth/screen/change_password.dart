@@ -128,13 +128,12 @@ class _ChangePasswordState extends State<ChangePassword> {
                               // todo: check validate
                               if (_pw1.text.isEmpty) {
                                 messageAlert(context, 'Vui lòng nhập mật khẩu cần đổi');
-                              } else if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$\b').hasMatch(_pw1.text)) {
+                              } else if (!RegExp(r'(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}\b').hasMatch(_pw1.text)) {
                                 messageAlert(
                                   context,
-                                  'Mật khẩu phải tối thiểu tám ký tự, ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt',
+                                  'Mật khẩu phải tối thiểu tám ký tự, ít nhất có:\n- Một chữ hoa\n- Một chữ thường\n- Một số và một ký tự đặc biệt',
                                   color: Colors.yellow.shade700
                                 );
-                                return;
                               } else if (_pw2.text.isEmpty) {
                                 messageAlert(
                                   context,

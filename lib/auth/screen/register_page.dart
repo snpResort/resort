@@ -132,10 +132,10 @@ class Screen_RegisterState extends State<ScreenRegister> {
               color: Colors.yellow.shade700
             );
             return;
-          } else if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$\b').hasMatch(_pw.text)) {
+          } else if (!RegExp(r'(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}\b').hasMatch(_pw.text)) {
             messageAlert(
               context,
-              'Mật khẩu phải tối thiểu tám ký tự, ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt',
+              'Mật khẩu phải tối thiểu tám ký tự, ít nhất có:\n- Một chữ hoa\n- Một chữ thường\n- Một số và một ký tự đặc biệt',
               color: Colors.yellow.shade700
             );
             return;
